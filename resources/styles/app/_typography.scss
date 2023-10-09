@@ -1,0 +1,19 @@
+h1, h2 {
+	font-weight: bold;
+	font-family: var(--nav-font);
+  	font-size: clamp(20px, 1vw, 26px);
+	margin-bottom: 5px;
+	
+	&.title {
+		padding-left: 24px;
+		margin: 0;
+	}
+}
+
+a:any-link {
+	&.simple-link {
+		color: white;
+		text-decoration: underline;
+		font-weight: bold;
+	}
+}

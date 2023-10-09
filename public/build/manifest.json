@@ -1,0 +1,39 @@
+{
+  "lang/en.json": {
+    "file": "assets/en-521c6e95.js",
+    "isDynamicEntry": true,
+    "src": "lang/en.json"
+  },
+  "lang/it.json": {
+    "file": "assets/it-a23a5b23.js",
+    "isDynamicEntry": true,
+    "src": "lang/it.json"
+  },
+  "lang/php_en.json": {
+    "file": "assets/php_en-71f8ebfa.js",
+    "isDynamicEntry": true,
+    "src": "lang/php_en.json"
+  },
+  "resources/images/schermo.png": {
+    "file": "assets/schermo-8e2da0fb.png",
+    "src": "resources/images/schermo.png"
+  },
+  "resources/js/app.js": {
+    "assets": [
+      "assets/schermo-8e2da0fb.png"
+    ],
+    "dynamicImports": [
+      "lang/en.json",
+      "lang/it.json",
+      "lang/php_en.json"
+    ],
+    "file": "assets/app-6055b45c.js",
+    "isEntry": true,
+    "src": "resources/js/app.js"
+  },
+  "resources/styles/app/app.scss": {
+    "file": "assets/app-539e0c23.css",
+    "isEntry": true,
+    "src": "resources/styles/app/app.scss"
+  }
+}

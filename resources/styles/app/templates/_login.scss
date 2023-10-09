@@ -1,0 +1,91 @@
+main#login {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 97vh;
+
+	.intro {
+		&[phase="start"] {
+			@include respond-to($max-tablet) {
+				height: 44vh;
+			}
+		}
+
+		&[phase="login"] {
+			@include respond-to($max-tablet) {
+				height: 30vh;
+			}
+		}
+
+		&[phase="register"] {
+			@include respond-to($max-tablet) {
+				height: 27vh;
+			}
+		}
+
+		img {
+			width: 100%;
+			clip-path: circle(75% at top);
+			transition: all .6s ease-in-out;
+
+			&.start:not(.hidden) {
+				@include respond-to($max-tablet) {
+					margin-top: -9%;
+				}
+			}
+
+			&.register:not(.hidden) {
+				@include respond-to($max-tablet) {
+					margin-top: -20%;
+				}
+			}
+
+			&.login:not(.hidden) {
+				@include respond-to($max-tablet) {
+					margin-top: -35%;
+				}
+			}
+		}
+	}
+
+	.logo {
+		text-align: center;
+		height: 35vh;
+
+		img {
+			width: 45%;
+			height: auto;
+			margin: 1em 0 2em;
+		}
+
+		p {
+			font-family: var(--nav-font);
+		}
+	}
+
+	> .login {
+		@include respond-to($max-tablet) {
+			height: 44vh;
+		}
+	}
+
+	> .register {
+		@include respond-to($max-tablet) {
+			height: 52vh;
+		}
+	}
+
+	.buttons {
+		padding: 24px;
+		text-align: center;
+
+		button {
+			width: 100%;
+			margin-bottom: 10px;
+		}
+
+		p {
+			font-family: var(--nav-font);
+		}
+	}
+}

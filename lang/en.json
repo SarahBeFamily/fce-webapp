@@ -1,0 +1,18 @@
+{
+	"Anno": "Year",
+	"Genere": "Genre",
+	"Durata": "Duration",
+	"Lingua": "Language",
+	"Informazioni": "Info",
+	"Programmazione": "Program",
+	"Descrizione": "Description",
+	"Cast": "Cast",
+
+	"Scegli i posti": "Choose seats",
+
+	"Home": "Home",
+	"Film": "Movies",
+	"Biglietti": "Tickets",
+	"Food": "Food",
+	"Profilo": "Profile"
+}

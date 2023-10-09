@@ -1,0 +1,11 @@
+input:not([type="number"],[type="checkbox"]) {
+	border: 1px solid white;
+	background: transparent;
+	border-radius: 5px;
+	padding: 13px 7px;
+	margin-bottom: 12px;
+	color: white;
+	font-family: var(--main-font);
+	font-size: 12px;
+	font-weight: 500;
+}
