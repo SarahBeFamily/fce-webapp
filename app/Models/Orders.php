@@ -11,6 +11,6 @@ class Orders extends Model
 
     public function order_user()
     {
-        return $this->belongsTo(FCEuserController::class);
+        return $this->belongsTo(UserController::class);
     }
 }

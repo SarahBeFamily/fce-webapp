@@ -27,12 +27,12 @@
       "lang/it.json",
       "lang/php_en.json"
     ],
-    "file": "assets/app-6055b45c.js",
+    "file": "assets/app-e8350fa9.js",
     "isEntry": true,
     "src": "resources/js/app.js"
   },
   "resources/styles/app/app.scss": {
-    "file": "assets/app-539e0c23.css",
+    "file": "assets/app-b31248b7.css",
     "isEntry": true,
     "src": "resources/styles/app/app.scss"
   }

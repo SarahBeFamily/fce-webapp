@@ -15,7 +15,7 @@ class CreateFceUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('user_created_at');
+            $table->string('name')->nullable();
             $table->string('user_firstname')->nullable();
             $table->string('user_lastname')->nullable();
             $table->string('email')->unique();
