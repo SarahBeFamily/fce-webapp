@@ -53,17 +53,17 @@ Route::get('/film/{id}', function ($id) {
     return view('partials.single-film',['film' => $id]);
 });
 
-// Route::get('/checkout', function () {
-//     if (!Auth::check()) {
-//         return view('login');
-//     } else {
-//         return view('checkout');
-//     }
-// });
-
 Route::get('/checkout', function () {
-    return view('accedi');
-})->middleware(['auth', 'verified'])->name('checkout');
+    if (!Auth::check()) {
+        return view('accedi');
+    } else {
+        return view('checkout');
+    }
+});
+
+// Route::get('/checkout', function () {
+//     return view('chekout');
+// })->middleware(['auth', 'verified'])->name('checkout');
 
 
 require __DIR__.'/auth.php';

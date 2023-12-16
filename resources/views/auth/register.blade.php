@@ -1,77 +1,41 @@
-@extends('layouts.app')
+<x-guest-layout>
+    <form method="POST" action="{{ route('register') }}">
+        @csrf
 
-@section('content')
+        <!-- Email Address -->
+        <div class="flex flex-col">
+            <x-input-label for="email" :value="__('Email')" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        </div>
 
-<main id="login">
-	<div class="intro" phase="start">
-		<img class="start" src="{{ Vite::asset('resources/images/avatar.jpg') }}" alt="">
-		<img class="register hidden" src="{{ Vite::asset('resources/images/batman.jpg') }}" alt="">
-		<img class="login hidden" src="{{ Vite::asset('resources/images/joker.jpg') }}" alt="">
-	</div>
-	<div class="logo">
-		<img src="{{ Vite::asset('resources/images/logo.png') }}" alt="FCE">
-		
-		<x-title-start start></x-title-start>
-		<x-title-start login class="hidden"></x-title-start>
-		<x-title-start register class="hidden"></x-title-start>
+        <!-- Password -->
+        <div class="flex flex-col">
+            <x-input-label for="password" :value="__('Password')" />
 
-		<p>{{ __('Mettiti comodo e scegli il prossimo film') }}</p>
-	</div>
+            <x-text-input id="password" class="block mt-1 w-full"
+                            type="password"
+                            name="password"
+                            required autocomplete="new-password" />
 
-	<div class="buttons pad-both-24 start">
-		<button class="full-white" id="loginAccedi">{{ __('Accedi') }}</button>
+            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        </div>
 
-		<p>{{ __('Non hai ancora un account?') }} <a href="#" class="simple-link" id="loginRegistrati">{{ __('Registrati') }}</a></p>
-	</div>
+        <!-- Confirm Password -->
+        <div class="flex flex-col">
+            <x-input-label for="password_confirmation" :value="__('Conferma Password')" />
 
-	<div class="login pad-both-24 hidden">
-		@include('auth.login')
-	</div>
+            <x-text-input id="password_confirmation" class="block mt-1 w-full"
+                            type="password"
+                            name="password_confirmation" required autocomplete="new-password" />
 
-	<div class="register pad-both-24 hidden">
-        <x-guest-layout>
-            <form method="POST" action="{{ route('register') }}">
-                @csrf
+            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        </div>
 
-                <!-- Email Address -->
-                <div class="flex flex-col">
-                    <x-input-label for="email" :value="__('Email')" />
-                    <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                </div>
+        <div class="flex items-center justify-between">
+            <x-secondary-button action="backStart" class="fb-48">{{ __('Indietro') }}</x-secondary-button>
 
-                <!-- Password -->
-                <div class="flex flex-col">
-                    <x-input-label for="password" :value="__('Password')" />
-
-                    <x-text-input id="password" class="block mt-1 w-full"
-                                    type="password"
-                                    name="password"
-                                    required autocomplete="new-password" />
-
-                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                </div>
-
-                <!-- Confirm Password -->
-                <div class="flex flex-col">
-                    <x-input-label for="password_confirmation" :value="__('Conferma Password')" />
-
-                    <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                    type="password"
-                                    name="password_confirmation" required autocomplete="new-password" />
-
-                    <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <x-secondary-button action="backStart" class="fb-48">{{ __('Indietro') }}</x-secondary-button>
-
-                    <x-primary-button class="fb-48">{{ __('Registrati') }}</x-primary-button>
-                </div>
-            </form>
-        </x-guest-layout>
-    </div>
-	
-</main>
-
-@endsection
+            <x-primary-button class="fb-48">{{ __('Registrati') }}</x-primary-button>
+        </div>
+    </form>
+</x-guest-layout>
