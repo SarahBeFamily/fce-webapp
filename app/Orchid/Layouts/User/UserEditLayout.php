@@ -22,14 +22,33 @@ class UserEditLayout extends Rows
                 ->type('text')
                 ->max(255)
                 ->required()
-                ->title(__('Name'))
-                ->placeholder(__('Name')),
+                ->title(__('Username'))
+                ->placeholder(__('Username')),
 
             Input::make('user.email')
                 ->type('email')
                 ->required()
                 ->title(__('Email'))
                 ->placeholder(__('Email')),
+
+            Input::make('user.user_firstname')
+                ->type('text')
+                ->max(255)
+                ->required()
+                ->title(__('Nome'))
+                ->placeholder(__('Nome')),
+
+            Input::make('user.user_lastname')
+                ->type('text')
+                ->max(255)
+                ->required()
+                ->title(__('Cognome'))
+                ->placeholder(__('Cognome')),
+
+            Input::make('user.user_birthdate')
+                ->type('date')
+                ->required()
+                ->title(__('Data di nascita')),
         ];
     }
 }

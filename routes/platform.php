@@ -20,6 +20,9 @@ use App\Orchid\Screens\User\UserProfileScreen;
 use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
 
+use App\Orchid\Screens\Orders\OrdersScreen;
+use App\Orchid\Screens\Orders\OrderSingleScreen;
+
 /*
 |--------------------------------------------------------------------------
 | Dashboard Routes
@@ -83,6 +86,20 @@ Route::screen('roles', RoleListScreen::class)
     ->breadcrumbs(fn (Trail $trail) => $trail
         ->parent('platform.index')
         ->push(__('Roles'), route('platform.systems.roles')));
+
+// Platform > Ordini
+Route::screen('orders/ordini', OrdersScreen::class)
+    ->name('platform.orders.ordini')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.index')
+        ->push('Lista Ordini'));
+
+// Platform > Ordini > Ordine
+Route::screen('orders/ordine/{order_id}', OrderSingleScreen::class)
+    ->name('platform.orders.ordine')
+    ->breadcrumbs(fn (Trail $trail, $order) => $trail
+        ->parent('platform.orders.ordini')
+        ->push('Ordine #'.$order, route('platform.orders.ordine', $order)));
 
 // Example...
 Route::screen('example', ExampleScreen::class)

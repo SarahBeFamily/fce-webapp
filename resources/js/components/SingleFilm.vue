@@ -1,6 +1,8 @@
 <template>
 	<div class="single-movie">
-		<div class="foto" :style="{ 'background': 'linear-gradient(180deg, rgba(16, 16, 16, 0.00) 0%, #080808 86.46%), url(' + dettagli.locandina + ')' }">
+		<div class="foto" 
+			:class="{small: activeTab.dataTab != 'info' ? 'small' : ''}"
+			:style="{ 'background': 'linear-gradient(180deg, rgba(16, 16, 16, 0.00) 0%, #080808 86.46%), url(' + dettagli.locandina + ')' }">
 			<h1 class="title" v-if="!isCheckout">{{ dettagli.titolo }}</h1>
 		</div>
 
@@ -27,6 +29,7 @@
 			<ul v-if="!isCheckout">
 				<li data-tab="info" :class="{active: activeTab.dataTab == 'info' ? 'active' : ''}" @click="tabChange('info')">{{ $t('Informazioni') }}</li>
 				<li data-tab="progr" :class="{active: activeTab.dataTab == 'progr' ? 'active' : ''}" @click="tabChange('progr')">{{ $t('Programmazione') }}</li>
+				<li data-tab="private" :class="{active: activeTab.dataTab == 'private' ? 'active' : ''}" @click="tabChange('private')">{{ $t('Private Screening') }}</li>
 			</ul>
 
 			<div id="info" class="cont">
@@ -50,7 +53,7 @@
 					<div class="data">
 
 						<div class="giorni-wrap">
-							<label :for="p.giorno" v-for="p in progr.slice(0, 6)" class="giorno" :class="{selected: checkedGiorno == p.giorno ? 'selected' : ''}">
+							<label :for="p.giorno" v-for="p in progr.slice(0, 12)" class="giorno" :class="{selected: checkedGiorno == p.giorno ? 'selected' : ''}">
 								<input type="radio" :id="p.giorno" name="giorno" class="giorno" @change="addOrari(p.giorno)" v-model="checkedGiorno" :value="p.giorno">
 								<span class="mese">{{ p.mese }}.</span>
 								<span class="gg">{{ p.gg }}</span>
@@ -99,34 +102,73 @@
 			
 			</div>
 
+			<div id="private" class="cont hidden">
+				<div class="progr-wrap">
+					<div class="data">
+
+						<div class="giorni-wrap">
+							<label :for="p.giorno" v-for="p in progr.slice(0, 12)" class="giorno" :class="{selected: checkedGiorno == p.giorno ? 'selected' : ''}">
+								<input type="radio" :id="p.giorno" name="giorno" class="giorno" @change="addOrari(p.giorno)" v-model="checkedGiorno" :value="p.giorno">
+								<span class="mese">{{ p.mese }}.</span>
+								<span class="gg">{{ p.gg }}</span>
+							</label>
+						</div>
+
+						<div class="ora-wrap">
+							<label :for="ora.idOra" v-for="ora in orari" class="orario" :class="{selected: checkedOrario.ora == ora.ora ? 'selected' : ''}">
+								<input type="radio" :id="ora.idOra" name="orario" class="orario" @change="choosePerformance(ora.idPerf, ora.idTariffa, ora.ora, ora.idsala, ora.sala)" v-model="checkedOrario.ora" :value="ora.ora">
+								<span class="sala">{{ ora.sala }}</span>
+								<span class="ora">{{ ora.ora }}</span>
+							</label>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div id="posti" class="cont hidden">
 				<h3>Seleziona il posto</h3>
 
 				<div><img alt="schermo" class="schermo" src="../../images/schermo.png" width="" height="" /></div>
 
-				<div class="structure-sala" :class="(checkedOrario.sala).toLocaleLowerCase().replaceAll(' ', '_')" :data-file="fileSala(checkedOrario.sala)" :data-colonne="colonneSala(checkedOrario.sala)">
-					<input type="checkbox" class="posto" :class="(posto.idposto).replace('/', '-')" v-for="posto in postiSala" :data-posto="posto.idposto" :data-fila="posto.fila" :data-colonna="posto.colonna" @change="scegliPosto($event, posto.idposto)" />
+				<div class="structure-sala" 
+					:class="(checkedOrario.sala).toLocaleLowerCase().replaceAll(' ', '_')" 
+					:data-file="fileSala(checkedOrario.sala)" 
+					:data-colonne="colonneSala(checkedOrario.sala)"
+				>
+					<div class="posto posto-wrap" 
+						:class="(posto.idposto).replace('/', '-')" 
+						v-for="posto in postiSala"
+					>
+						<i v-if="(posto.idposto).includes('HX')"></i>
+						<input type="checkbox" class="posto" 
+							:class="(posto.idposto).replace('/', '-')" 
+							:data-posto="posto.idposto" 
+							:data-fila="posto.fila" 
+							:data-colonna="posto.colonna" 
+							@change="scegliPosto($event, posto.idposto)"
+						/>
+					</div>
 				</div>
 
 				<div id="legenda-posti">
 					<div class="posto-selezionato">
 						<div></div>
-						Selezionato
+						{{ $t('Selezionato') }}
 					</div>
 
 					<div class="posto-riservato">
 						<div></div>
-						Riservato
+						{{ $t('Riservato') }}
 					</div>
 
 					<div class="posto-disponibile">
 						<div></div>
-						Disponibile
+						{{ $t('Disponibile') }}
 					</div>
 				</div>
 
 				<div id="btn-checkout" class="submit flex" :class="{inactive: activeSubmitCheckout == false ? 'inactive' : '' }" @click="activeSubmitCheckout == true ? tabChange('checkout') : null">
-					Prosegui al checkout
+					{{ $t('Prosegui al checkout') }}
 					<i class="cart"></i>
 				</div>
 
@@ -153,22 +195,22 @@
 				<div class="scelte">
 					<div>
 						<span>{{ checkedGiorno }}</span>
-						Data
+						{{ $t('Data') }}
 					</div>
 
 					<div>
 						<span>{{ checkedOrario.ora }}</span>
-						Ora
+						{{ $t('Ora') }}
 					</div>
 
 					<div>
 						<span>{{ checkedOrario.sala }}</span>
-						Sala
+						{{ $t('Sala') }}
 					</div>
 				</div>
 
 				<div class="biglietti">
-					biglietti
+					{{ $t('biglietti') }}
 
 					<div class="tik" v-for="tik in checkedBiglietto.biglietti">
 						<span class="nome" v-if="!tik.qtySnack">{{ tik.nome }}, {{ tik.posto }}</span>
@@ -180,11 +222,22 @@
 				</div>
 
 				<div class="totale flex">
-					<span>Totale:</span>
+					<span>{{ $t('Totale') }}:</span>
 					<span class="prezzo">{{ checkedBiglietto.totale }}€</span>
 				</div>
 
-				<div class="btn-snack">
+				<div class="food-wrap">
+					<div class="food-cat"
+						v-for="cat in foodCat"
+						:id-nodo="cat.idnodo"
+						:id-nodopadre="cat.idnodoPadre"
+						@click.prevent="scegliSnack('apri', cat.idnodo)"
+					>
+						<span>{{ cat.nodo }}</span>
+					</div>
+				</div>
+
+				<!-- <div class="btn-snack">
 					<label>Qualche snack? 
 						<svg width="18" height="18" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" @click.prevent="showInfo('apri')">
 							<path d="M11 15.084L11 10.084M11 1.08398C5.5 1.08398 1 5.58398 1 11.084C1 16.584 5.5 21.084 11 21.084C16.5 21.084 21 16.584 21 11.084C21 5.58398 16.5 1.08398 11 1.08398Z" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -192,7 +245,7 @@
 						</svg>
 					</label>
 					<button id="snack" class="switch" :class="{on: snackChoose == true ? 'on' : '' }" @click.prevent="scegliSnack('apri')"><div class="circle" :class="browser"></div></button>
-				</div>
+				</div> -->
 
 				<div id="snack-info" class="info" style="display: none;">
 					<div class="inner">
@@ -210,42 +263,46 @@
 				<div id="snacks-tab" class="disabled">
 					<div class="inner">
 						<ul>
-							<li :class="{active: activeSnackTab.dataTab == 'snackInput' ? 'active' : ''}" @click="tabSnackChange('snackInput')">Snack</li>
-							<li :class="{active: activeSnackTab.dataTab == 'bevandeInput' ? 'active' : ''}" @click="tabSnackChange('bevandeInput')">Bevande</li>
+						 	<li
+							 	v-for="cat in foodCat"
+								:id-nodo="cat.idnodo"
+								:id-nodopadre="cat.idnodoPadre"
+								:class="{active: activeSnackTab.dataTab == cat.idnodo ? 'active' : ''}"
+								@click="tabSnackChange(cat.idnodo)"
+							>
+								{{ cat.nodo }}
+								<span></span>
+							</li>
 						</ul>
 
-						<div id="snackInput" class="snack-tab cont">
-							<div class="type-tar" v-for="snack in snacks.food">
-								<span class="nome">{{ snack.nome }}</span>
-								<span class="prezzo">{{ snack.prezzo }}€</span>
-								<div class="quantity">
-									<button @click.prevent="qtyMinus(snack.id, 'snack')">
-										<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-											<path d="M2 10H18" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-										</svg> 
-									</button>
-									<input type="number" :name="'qty-'+snack.id" :data-prezzo="snack.prezzo" :data-nome="snack.nome" :id="'qty-'+snack.id" min="0" value="0">
-									<button @click.prevent="qtyPlus(snack.id, 'snack')">
-										<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-											<path d="M2 10H18M10 18V2" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-										</svg> 
-									</button>
+						<div class="food-tab cont"
+							v-for="cat in foodCat"
+							:id="cat.idnodo"
+						>
+
+							<div class="selezione">
+								<span>{{ $t('Selezionate') }}</span>
+								<div class="data-sel">
+									{{ dataSel.qty }}
 								</div>
 							</div>
-						</div>
 
-						<div id="bevandeInput" class="snack-tab cont hidden">
-							<div class="type-tar" v-for="snack in snacks.drink">
-								<span class="nome">{{ snack.nome }}</span>
-								<span class="prezzo">{{ snack.prezzo }}€</span>
+							<div class="type-tar" 
+								v-for="articolo in cat.Nodi"
+								:id="articolo.idarticolo"
+								:id-nodopadre="articolo.idnodoPadre"
+							>
+								<div class="foto-food" :style="{'background-image': 'url(http://fce.winticstellar.com/evolution/webapi/Handlers/handlerArticoli.ashx?idnegozio='+idCinema+'&idarticolo='+articolo.idarticolo+'&LOB_SIZE=SMALL&t=20230707084628)'}"></div>
+								<p class="nome">{{ articolo.articolo.nome.indexOf('Ingredienti:') > -1 ? articolo.articolo.nome.slice(0, articolo.articolo.nome.indexOf('Ingredienti:')) : articolo.articolo.nome }}</p>
+								
 								<div class="quantity">
-									<button @click.prevent="qtyMinus(snack.id, 'snack')">
+									<button @click.prevent="qtyMinus(articolo.idarticolo, 'snack')">
 										<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 											<path d="M2 10H18" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 										</svg> 
 									</button>
-									<input type="number" :name="'qty-'+snack.id" :data-prezzo="snack.prezzo" :data-nome="snack.nome" :id="'qty-'+snack.id" min="0" value="0">
-									<button @click.prevent="qtyPlus(snack.id, 'snack')">
+									<input type="number" :name="'qty-'+articolo.idarticolo" :data-prezzo="articolo.articolo.importo" :data-nome="articolo.articolo.nome" :id="'qty-'+articolo.idarticolo" min="0" value="0">
+									<button @click.prevent="qtyPlus(articolo.idarticolo, 'snack')">
 										<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 											<path d="M2 10H18M10 18V2" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 										</svg> 
@@ -261,7 +318,7 @@
 					</div>
 				</div>
 
-				<div id="btn-acquista" class="submit flex" :class="{inactive: activeSubmitCheckout == false ? 'inactive' : '' }" @click="activeSubmitCheckout == true ? null : null">
+				<div id="btn-acquista" class="submit flex" :class="{inactive: activeSubmitCheckout == false ? 'inactive' : '' }" @click="activeSubmitCheckout == true ? saveSessionCookie() : null">
 					Acquista i biglietti
 					<i class="cart"></i>
 				</div>
@@ -277,11 +334,14 @@
 <script>
 	// Wiki API
 	let WikiBase = 'https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&list=&titles=',
-		WebtikBase = 'https://services.webtic.it/services/WSC_Webtic.asmx/';
+		WebtikBase = 'https://services.webtic.it/services/WSC_Webtic.asmx/',
+		idCinema = 600;
 
 	import axios from 'redaxios'
 	import $ from 'jquery'
 	import 'slick-carousel'
+
+	import.meta.glob(['../../images/**',]);
 
 	export default {
 		props: ['route', 'path'],
@@ -289,6 +349,7 @@
         return {
 			appUrl: this.path,
 			id: this.route,
+			idCinema: idCinema,
 			activeTab: {
 				dataTab: 'info',
 				active: true
@@ -334,8 +395,13 @@
 			snackChosen: [],
 			snackInfo: 'hidden',
 			activeSnackTab: {
-				dataTab: 'snackInput',
+				dataTab: '',
 				active: true
+			},
+			foodCat: [],
+			dataSel: {
+				cat: '',
+				qty: 0
 			},
 			snacks: {
 				food: [
@@ -408,7 +474,7 @@
     },
     methods: {
         fetchEvento: function () {
-            axios.get(`${WebtikBase}_getPerformanceListDetail?idcinema=600&idevento=${this.id}`)
+            axios.get(`${WebtikBase}_getPerformanceListDetail?idcinema=${idCinema}&idevento=${this.id}`)
                 .then((res) => {
 				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
 					jsonData = this.xmlToJson(XmlNode),
@@ -547,7 +613,7 @@
             });
         },
         addImage: function () {
-			axios.get(`https://services.webtic.it/services/WSC_Webtic.asmx/_getEventImage?idcinema=600&idevento=${this.id}`)
+			axios.get(`https://services.webtic.it/services/WSC_Webtic.asmx/_getEventImage?idcinema=${idCinema}&idevento=${this.id}`)
 				.then((res) => {
 				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
 					jsonData = this.xmlToJson(XmlNode);
@@ -564,7 +630,8 @@
 					let data = res.data;
 					let p = data.query.pages;
 					let page = Object.values(p)[0];
-					let foto = (page.thumbnail.source).replace('50px', '200px');
+					let img = page.thumbnail;
+					let foto = img != undefined ? (img.source).replace('50px', '200px') : asset_url+'/placeholder-person-f691e76b.jpg';
 
 					attore.foto = foto;
 				});
@@ -574,7 +641,7 @@
         },
 		choosePerformance: function(idPerf, idTariffa, ora, idsala, nomesala) {
 			// Prezzi per performance
-			axios.get(`${WebtikBase}_getPriceListFull?idcinema=600&idPerformance=${idPerf}&idTariffa=${idTariffa}&mode=3`)
+			axios.get(`${WebtikBase}_getPriceListFull?idcinema=${idCinema}&idPerformance=${idPerf}&idTariffa=${idTariffa}&mode=3`)
                 .then((res) => {
 					const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
 						jsonData = this.xmlToJson(XmlNode),
@@ -688,13 +755,43 @@
                     dots: false,
                     arrows: false,
                     infinite: false,
-                    centerMode: true,
+                    centerMode: false,
                     variableWidth: false,
-                    slidesToShow: 2.2,
+                    slidesToShow: 6,
                     slidesToScroll: 1,
                     autoplay: false,
                     autoplaySpeed: 2500,
                     cssEase: 'cubic-bezier(0.785, 0.135, 0.150, 0.860)',
+					responsive: [
+                        {
+                        breakpoint: 1280,
+                        settings: {
+                            slidesToShow: 4.5,
+                            slidesToScroll: 1,
+                            infinite: true,
+                            dots: true
+                        	}
+                        },
+                        {
+                        breakpoint: 1024,
+                        settings: {
+                            slidesToShow: 3.5,
+                            slidesToScroll: 1,
+                            infinite: true,
+                            dots: true
+                        	}
+                        },
+                        {
+                        breakpoint: 600,
+                        settings: {
+                            slidesToShow: 2.5,
+                            slidesToScroll: 1
+                        	}
+                        },
+                        // You can unslick at a given breakpoint now by adding:
+                        // settings: "unslick"
+                        // instead of a settings object
+                    ]
                 });
             });
         },
@@ -712,7 +809,7 @@
 		},
 		qtyMinus: function(id, type = '') {
 			const targetInput = $(`#qty-${id}`),
-				targetNome = targetInput.attr('data-nome'),
+				targetNome = targetInput.attr('data-nome').indexOf('Ingredienti:') > -1 ? targetInput.attr('data-nome').slice(0, targetInput.attr('data-nome').indexOf('Ingredienti:')) : targetInput.attr('data-nome'),
 				targetSlug = targetNome.replaceAll(' ', '-').toLowerCase(),
 				targetPrezzo = targetInput.attr('data-prezzo');
 
@@ -797,9 +894,13 @@
 					this.checkedBiglietto.prezzi.push(prezzo_attuale);
 				
 				} else {
-					if(this.snackChosen.length = 0)
+					if (this.snackChosen.length === 0)
 						this.snackChoose = false
 				}
+
+				if (targetQty > 0)
+					this.dataSel.qty = this.snackChosen.length > 0 ? this.dataSel.qty -1 : this.snackChosen.length
+
 			}
 
 			if (this.checkedBiglietto.recap.length > 0) {
@@ -831,7 +932,7 @@
 			this.checkedBiglietto.index = this.checkedBiglietto.index+1;
 
 			const targetInput = $(`#qty-${id}`),
-				targetNome = targetInput.attr('data-nome'),
+				targetNome = targetInput.attr('data-nome').indexOf('Ingredienti:') > -1 ? targetInput.attr('data-nome').slice(0, targetInput.attr('data-nome').indexOf('Ingredienti:')) : targetInput.attr('data-nome'),
 				targetSlug = targetNome.replaceAll(' ', '-').toLowerCase(),
 				targetPrezzo = targetInput.attr('data-prezzo');
 
@@ -903,9 +1004,10 @@
 
 					this.snackChosen.push(el)
 					this.snackChoose = true
+					this.dataSel.qty+=1
 					this.checkedBiglietto.biglietti.push(el)
 
-					console.log(this.snackChoose)
+					//console.log(this.snackChoose)
 				}
 			}
 			
@@ -952,7 +1054,7 @@
 			return arr;
 		},
 		getPostiSala: function() {
-			axios.get(`${WebtikBase}_getMappaSale?idcinema=600&idsala=${this.checkedOrario.idsala}`)
+			axios.get(`${WebtikBase}_getMappaSale?idcinema=${idCinema}&idsala=${this.checkedOrario.idsala}`)
                 .then((res) => {
 					let xmldata = res.data;
 					let XmlNode = new DOMParser().parseFromString(xmldata, 'text/xml');
@@ -967,7 +1069,7 @@
             });
 
 			// posti occupati
-			axios.get(`${WebtikBase}_getOccupancy?idcinema=600&idperformance=${this.checkedOrario.idPerf}`)
+			axios.get(`${WebtikBase}_getOccupancy?idcinema=${idCinema}&idperformance=${this.checkedOrario.idPerf}`)
                 .then((res) => {
 					let xmldata = res.data;
 					let XmlNode = new DOMParser().parseFromString(xmldata, 'text/xml');
@@ -987,7 +1089,6 @@
 				default:
 					break;
 			}
-			console.log(file)
 			return file;
 		},
 		colonneSala: function(sala) {
@@ -1041,12 +1142,61 @@
 				this.activeSubmitCheckout = false;
 			}
 		},
-		scegliSnack: function(action) {
+		fetchFood: function() {
+			axios.post(`http://fce.winticstellar.com/evolution/webapi/api/getArticoliNegozio`,
+			{
+				"idnegozio": "600",
+				"web_box": "demo",
+				"web_operator": "crea",
+				"sessionId": "azttmxtdaa_100",
+				"trackid": "2200"
+			})
+			.then((res) => {
+					let categorie = res.data.TastieraArticoli.Nodi;
+					
+					console.log(categorie);
+					// foto
+					//`http://fce.winticstellar.com/evolution/webapi/Handlers/handlerArticoli.ashx?idnegozio=${idCinema}&idarticolo=${idArticolo}&LOB_SIZE=SMALL&t=20230707084628`;
+					this.foodCat = categorie;
+            });
+		},
+		saveSessionCookie: function() {
+			let posti = this.checkedBiglietto.biglietti.map(function(elem){
+				return elem.posto;
+			}).join(' | ');
+
+			let sessionSnack = this.snackChosen.map(function(elem){
+				return elem.nome;
+			}).join(' | ');
+
+			let sessionCookie = {
+				giorno: this.checkedGiorno,
+				ora: this.checkedOrario.ora,
+				sala: this.checkedOrario.sala,
+				idsala: this.checkedOrario.idsala,
+				idPerf: this.checkedOrario.idPerf,
+				idTariffa: this.checkedOrario.idTariffa,
+				biglietti: this.checkedBiglietto.biglietti,
+				snack: sessionSnack,
+				posti: posti,
+				totale: this.checkedBiglietto.totale,
+				nBiglietti: this.checkedBiglietto.nBiglietti,
+				recap: this.checkedBiglietto.recap,
+			}
+
+			let sessionCookieStr = JSON.stringify(sessionCookie);
+			localStorage.setItem('sessionCookie', sessionCookieStr);
+
+			console.log(sessionCookie);
+			location.href = `${this.appUrl}checkout`;
+		},
+		scegliSnack: function(action, id) {
 
 			switch (action) {
 				case 'apri':
+					
 					$('#snacks-tab').removeClass('disabled');
-					$('#snacks-tab ul li:first-child').click();
+					$(`#snacks-tab ul li[id-nodo="${id}"`).click();
 					break;
 
 				case 'chiudi':
@@ -1064,8 +1214,8 @@
 			}
 		},
 		tabSnackChange: function(data) {
-			$(`.snack-tab#${data}`).removeClass('hidden');
-			$(`.snack-tab:not(#${data})`).addClass('hidden');
+			$(`.food-tab#${data}`).removeClass('hidden');
+			$(`.food-tab:not(#${data})`).addClass('hidden');
 
 			this.activeSnackTab.dataTab = data;
 		},
@@ -1140,6 +1290,7 @@
     mounted() {
         this.fetchEvento();
 		this.isSafari();
+		this.fetchFood();
     },
     // components: { RouterLink }
 	}

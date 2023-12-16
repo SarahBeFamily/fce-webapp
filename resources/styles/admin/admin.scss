@@ -1,0 +1,10 @@
+/** Loginn screen on the admin panel **/
+.page-platform-login {
+	background: black;
+}
+
+.form-signin {
+	.text-muted, >p {
+		display: none;
+	}
+}

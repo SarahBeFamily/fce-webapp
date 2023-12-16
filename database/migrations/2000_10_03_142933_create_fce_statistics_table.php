@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('fce_statistics', function (Blueprint $table) {
+        Schema::create('statistics', function (Blueprint $table) {
             $table->timestamp('created_at')->primary();
             $table->string('cinema_name');
             $table->string('city');
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('fce_statistics');
+        Schema::dropIfExists('statistics');
     }
 };

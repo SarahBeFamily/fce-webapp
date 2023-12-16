@@ -3,7 +3,10 @@
     "type": "module",
     "scripts": {
         "dev": "vite --host",
-        "build": "vite build"
+        "build": "vite build",
+        "post-update-cmd": [
+            "@php artisan orchid:publish --ansi"
+        ]
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",

@@ -18,11 +18,3 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-// Route::group(['middleware' => 'cors'], function () {
-    
-//     Route::get('/v1/employees/{id?}', 'Employees@index');
-//     Route::post('/v1/employees', 'Employees@store');
-//     Route::post('/v1/employees/{id}', 'Employees@update');
-//     Route::delete('/v1/employees/{id}', 'Employees@destroy');
-    
-// });

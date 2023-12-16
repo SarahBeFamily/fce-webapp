@@ -142,7 +142,7 @@ return [
      |
      */
 
-    'vite' => [],
+    'vite' => ['resources/styles/admin/admin.scss', 'resources/js/admin-panel.js'],
 
     /*
      |--------------------------------------------------------------------------
@@ -160,7 +160,7 @@ return [
      */
 
     'template' => [
-        'header' => '',
+        'header' => 'brand.header',
         'footer' => '',
     ],
 
@@ -244,7 +244,7 @@ return [
      */
 
     'search' => [
-        // \App\Models\User::class
+        \App\Models\User::class
     ],
 
     /*

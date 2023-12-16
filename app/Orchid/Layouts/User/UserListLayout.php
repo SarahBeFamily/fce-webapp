@@ -46,6 +46,11 @@ class UserListLayout extends Table
                         'user' => $user->id,
                     ])),
 
+            TD::make(__('N° Ordini'))
+                
+                ->align(TD::ALIGN_RIGHT)
+                ->sort(),
+
             TD::make('created_at', __('Created'))
                 ->usingComponent(DateTimeSplit::class)
                 ->align(TD::ALIGN_RIGHT)

@@ -21,7 +21,7 @@ return [
 
     'allowed_origins' => ['fce.test', '192.168.1.140', '192.168.1.140:5174', '127.0.0.1:8000', 'localhost:5173'],
 
-    'allowed_origins_patterns' => ['https://services.webtic.it'],
+    'allowed_origins_patterns' => ['https://services.webtic.it', 'http://fce.winticstellar.com'],
 
     'allowed_headers' => ['X-Custom-Header', 'Upgrade-Insecure-Requests','Content-Type', 'accept', 'x-custom-header', 'x-requested-with'],
 

@@ -8,6 +8,8 @@
 		<p>Ciao {{ $nome }}!</p>
 
 		@include('profile.partials.update-profile-information-form')
+
+		@include('auth.logout')
 	</div>
 	
 @endsection

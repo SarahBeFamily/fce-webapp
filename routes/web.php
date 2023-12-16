@@ -15,16 +15,21 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('login');
+    // if (!Auth::check()) {
+    //     return view('login');
+    // } else {
+    //     return redirect('/dashboard');
+    // }
+    return view('dashboard');
+});
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
 });
 
 // Route::get('/home', function () {
 //     return view('home');
 // });
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profilo', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -47,6 +52,18 @@ Route::get('/food', function () {
 Route::get('/film/{id}', function ($id) {
     return view('partials.single-film',['film' => $id]);
 });
+
+// Route::get('/checkout', function () {
+//     if (!Auth::check()) {
+//         return view('login');
+//     } else {
+//         return view('checkout');
+//     }
+// });
+
+Route::get('/checkout', function () {
+    return view('accedi');
+})->middleware(['auth', 'verified'])->name('checkout');
 
 
 require __DIR__.'/auth.php';

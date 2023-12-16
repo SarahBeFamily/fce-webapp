@@ -32,6 +32,12 @@
         </div>
 
         <div class="flex flex-col">
+            <x-input-label for="user_birthdate" :value="__('Data di Nascita')" />
+            <x-text-input data-provide="datepicker" data-date-format="dd-mm-yyyy" id="user_birthdate" name="user_birthdate" type="date" class="mt-1 block w-full" :value="old('user_birthdate', $user->user_birthdate)" required autofocus />
+            <x-input-error class="mt-2" :messages="$errors->get('user_birthdate')" />
+        </div>
+
+        <div class="flex flex-col">
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
