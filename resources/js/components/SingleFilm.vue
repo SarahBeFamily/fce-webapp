@@ -107,7 +107,7 @@
 					<div class="data">
 
 						<div class="giorni-wrap">
-							<label :for="p.giorno" v-for="p in progr.slice(0, 12)" class="giorno" :class="{selected: checkedGiorno == p.giorno ? 'selected' : ''}">
+							<label :for="p.giorno" v-for="p in progr.slice(12, 24)" class="giorno" :class="{selected: checkedGiorno == p.giorno ? 'selected' : ''}">
 								<input type="radio" :id="p.giorno" name="giorno" class="giorno" @change="addOrari(p.giorno)" v-model="checkedGiorno" :value="p.giorno">
 								<span class="mese">{{ p.mese }}.</span>
 								<span class="gg">{{ p.gg }}</span>
@@ -874,8 +874,10 @@
 
 				if (minus > 0) {
 					let el = {
+						type: 'snack',
 						id: targetSlug,
 						nome: targetNome,
+						idnodo: id,
 						prezzo: parseFloat(targetPrezzo).toFixed(2).replace('.', ','),
 						prezzoTot: parseFloat(targetPrezzo * minus).toFixed(2).replace('.', ','),
 						qty: minus,
@@ -960,6 +962,7 @@
 					this.checkedBiglietto.prezzi.push(targetPrezzo)
 					
 					let el = {
+						type: 'biglietto',
 						id: `${targetSlug}-${this.checkedBiglietto.index}`,
 						nome: targetNome,
 						prezzo: parseFloat(targetPrezzo).toFixed(2).replace('.', ','),
@@ -988,14 +991,21 @@
 					})
 					if (biglietti !== -1) this.checkedBiglietto.biglietti.splice(biglietti, 1);
 
+					// let snacks = this.snackChosen.findIndex(function(o){
+					// 	return o.id === targetSlug;
+					// })
+					// if (snacks !== -1) this.snackChosen.splice(snacks, 1);
+
 					let prezzo_remove = (targetPrezzo * (targetQty-1)).toString();
 					let prezzo_tot = (targetPrezzo * targetQty).toString();
 					this.removeItemOnce(this.checkedBiglietto.prezzi, prezzo_remove);
 					this.checkedBiglietto.prezzi.push(prezzo_tot);
 
 					let el = {
+						type: 'snack',
 						id: targetSlug,
 						nome: targetNome,
+						idnodo: id,
 						prezzo: parseFloat(targetPrezzo).toFixed(2).replace('.', ','),
 						prezzoTot: parseFloat(targetPrezzo * targetQty).toFixed(2).replace('.', ','),
 						qty: targetQty,
@@ -1007,7 +1017,7 @@
 					this.dataSel.qty+=1
 					this.checkedBiglietto.biglietti.push(el)
 
-					//console.log(this.snackChoose)
+					console.log(this.snackChosen)
 				}
 			}
 			
@@ -1163,11 +1173,10 @@
 		saveSessionCookie: function() {
 			let posti = this.checkedBiglietto.biglietti.map(function(elem){
 				return elem.posto;
-			}).join(' | ');
-
-			let sessionSnack = this.snackChosen.map(function(elem){
-				return elem.nome;
-			}).join(' | ');
+			}).join(' | '),
+				snacks = this.checkedBiglietto.biglietti.map(function(elem){
+					return elem.type === 'snack' ? elem : [];
+				});
 
 			let sessionCookie = {
 				giorno: this.checkedGiorno,
@@ -1177,11 +1186,12 @@
 				idPerf: this.checkedOrario.idPerf,
 				idTariffa: this.checkedOrario.idTariffa,
 				biglietti: this.checkedBiglietto.biglietti,
-				snack: sessionSnack,
+				snack: snacks,
 				posti: posti,
 				totale: this.checkedBiglietto.totale,
 				nBiglietti: this.checkedBiglietto.nBiglietti,
 				recap: this.checkedBiglietto.recap,
+				checkedBiglietto: this.checkedBiglietto,
 			}
 
 			let sessionCookieStr = JSON.stringify(sessionCookie);

@@ -1,8 +1,8 @@
 .single-movie {
 	.foto {
 		height: 185px;
-		background-size: 115%;
-		background-position: center 13%;
+		background-size: 115% !important;
+		background-position: center 13% !important;
 		display: flex;
 		align-items: flex-end;
 		transition: all .5s ease-in-out;

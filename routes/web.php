@@ -53,6 +53,10 @@ Route::get('/film/{id}', function ($id) {
     return view('partials.single-film',['film' => $id]);
 });
 
+Route::get('/food/{id}', function ($id) {
+    return view('partials.single-food',['food' => $id]);
+});
+
 Route::get('/checkout', function () {
     if (!Auth::check()) {
         return view('accedi');

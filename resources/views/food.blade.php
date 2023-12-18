@@ -1,5 +1,9 @@
 @extends('/layouts/app')
 
 @section('content')
-	Sezione food & beverage
+
+	<div id="food-page">
+		<cmp-food path="{{ asset('/')}}"></cmp-food>
+	</div>
+
 @endsection

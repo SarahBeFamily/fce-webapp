@@ -5,6 +5,8 @@ import { i18nVue } from 'laravel-vue-i18n';
 import Recommended from './components/Recommended.vue';
 import AlCinema from './components/AlCinema.vue';
 import SingleFilm from './components/SingleFilm.vue';
+import Food from './components/Food.vue';
+import SingleFood from './components/SingleFood.vue';
 
 const app = createApp({})
 
@@ -18,6 +20,8 @@ app.use(i18nVue, {
 app.component('recommended', Recommended)
 app.component('cmp-alcinema', AlCinema)
 app.component('cmp-singlefilm', SingleFilm)
+app.component('cmp-food', Food)
+app.component('cmp-singlefood', SingleFood)
 
 app.mount('#app')
 
