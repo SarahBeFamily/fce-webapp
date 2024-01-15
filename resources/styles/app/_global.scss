@@ -90,7 +90,25 @@ body {
 	display: none;
 }
 
-.films .wrap {
+ul.space-y-1.mt-2 {
+	padding: 0;
+	list-style: none;
+
+	&.text-red-600 {
+		li {
+			color: red;
+		}
+	}
+
+	li {
+		line-height: 1.1;
+		font-size: 13px;
+		font-weight: bold;
+		margin-bottom: 10px;
+	}
+}
+
+.carousel-two .films .wrap {
 	height: 43vh;
 	background-size: cover !important;
 	min-height: 310px;
@@ -100,7 +118,8 @@ body {
 	justify-content: center;
 	padding: 15px;
 
-	a:any-link {
+	a:any-link,
+	&:any-link {
 		text-decoration: none;
 		color: white;
 	}

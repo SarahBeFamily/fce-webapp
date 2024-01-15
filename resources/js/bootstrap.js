@@ -26,6 +26,14 @@ $(function() {
 		$('#login .register, #login .login, h1[register], h1[login').addClass('hidden');
 		$('#login .start, h1[start]').removeClass('hidden');
 	});
+
+	$('#recuperaPassword').on('click', function(e) {
+		e.preventDefault();
+		
+		$('#login .intro').attr('phase', 'register');
+		$('#login .start, #login .login, #login div.register, h1[start], h1[register], h1[login').addClass('hidden');
+		$('#login .forgot-password, #login img.register, h1[recupera]').removeClass('hidden');
+	});
 });
 
 

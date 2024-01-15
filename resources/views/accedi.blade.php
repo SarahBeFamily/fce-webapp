@@ -14,6 +14,7 @@
 		<x-title-start start></x-title-start>
 		<x-title-start login class="hidden"></x-title-start>
 		<x-title-start register class="hidden"></x-title-start>
+		<x-title-start recupera class="hidden"></x-title-start>
 
 		<p>{{ __('Mettiti comodo e scegli il prossimo film') }}</p>
 	</div>
@@ -30,6 +31,10 @@
 
 	<div class="register pad-both-24 hidden">
 		@include('auth.register')
+	</div>
+
+	<div class="forgot-password pad-both-24 hidden">
+		@include('auth.forgot-password')
 	</div>
 	
 </main>

@@ -41,7 +41,8 @@
 
 					<div class="carousel-cast">
 						<div class="member" v-for="attore in cast">
-							<div class="thmb" :style="{ 'background-image': 'url(' + attore.foto + ')' }"></div>
+							<div v-if="attore.foto != ''" class="thmb" :style="{ 'background-image': 'url(' + attore.foto + ')' }"></div>
+							<div v-if="attore.foto == ''" class="thmb"><img :alt="attore.nome" class="cast-img" src="../../images/placeholder-person.jpg" width="100" height="" /></div>
 							<h3>{{ attore.nome }}</h3>
 						</div>
 					</div>
@@ -61,8 +62,8 @@
 						</div>
 
 						<div class="ora-wrap">
-							<label :for="ora.idOra" v-for="ora in orari" class="orario" :class="{selected: checkedOrario.ora == ora.ora ? 'selected' : ''}">
-								<input type="radio" :id="ora.idOra" name="orario" class="orario" @change="choosePerformance(ora.idPerf, ora.idTariffa, ora.ora, ora.idsala, ora.sala)" v-model="checkedOrario.ora" :value="ora.ora">
+							<label :for="ora.idPerf" v-for="ora in orari" class="orario" :data-sala="ora.idsala" :class="{selected: (checkedOrario.ora == ora.ora && checkedOrario.idsala == ora.idsala) ? 'selected' : ''}">
+								<input type="radio" :id="ora.idPerf" name="orario" class="orario" @change="choosePerformance(ora.idPerf, ora.idTariffa, ora.ora, ora.idsala, ora.sala)" v-model="checkedOrario.ora" :value="ora.ora">
 								<span class="sala">{{ ora.sala }}</span>
 								<span class="ora">{{ ora.ora }}</span>
 							</label>
@@ -80,7 +81,7 @@
 									<path d="M2 10H18" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 								</svg> 
 							</button>
-							<input type="number" :name="'qty-'+tar.id" :data-prezzo="tar.prezzo" :data-nome="tar.nome" :id="'qty-'+tar.id" min="0" value="0">
+							<input type="number" :name="'qty-'+tar.id" :data-prezzo="tar.prezzo" :data-nome="tar.nome" :id="'qty-'+tar.id" min="0" :value="tar.qty">
 							<button @click.prevent="qtyPlus(tar.id)">
 								<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M2 10H18M10 18V2" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -115,18 +116,23 @@
 						</div>
 
 						<div class="ora-wrap">
-							<label :for="ora.idOra" v-for="ora in orari" class="orario" :class="{selected: checkedOrario.ora == ora.ora ? 'selected' : ''}">
-								<input type="radio" :id="ora.idOra" name="orario" class="orario" @change="choosePerformance(ora.idPerf, ora.idTariffa, ora.ora, ora.idsala, ora.sala)" v-model="checkedOrario.ora" :value="ora.ora">
+							<label :for="ora.idPerf" v-for="ora in orari" class="orario" :data-sala="ora.idsala" :class="{selected: (checkedOrario.ora == ora.ora && checkedOrario.idsala == ora.idsala) ? 'selected' : ''}">
+								<input type="radio" :id="ora.idPerf" name="orario" class="orario" @change="choosePerformance(ora.idPerf, ora.idTariffa, ora.ora, ora.idsala, ora.sala)" v-model="checkedOrario.ora" :value="ora.ora">
 								<span class="sala">{{ ora.sala }}</span>
 								<span class="ora">{{ ora.ora }}</span>
 							</label>
+						</div>
+
+						<div id="btn-acquista" class="submit flex" :class="{inactive: activeSubmitCheckout == false ? 'inactive' : '' }" @click="activeSubmit == true ? saveSessionCookie() : null">
+							{{ $t('Prenota questa sala') }}
+							<i class="cart"></i>
 						</div>
 					</div>
 				</div>
 			</div>
 
 			<div id="posti" class="cont hidden">
-				<h3>Seleziona il posto</h3>
+				<h3>{{ $t('Seleziona il posto') }}</h3>
 
 				<div><img alt="schermo" class="schermo" src="../../images/schermo.png" width="" height="" /></div>
 
@@ -141,6 +147,7 @@
 					>
 						<i v-if="(posto.idposto).includes('HX')"></i>
 						<input type="checkbox" class="posto" 
+							v-model="posto.checked"
 							:class="(posto.idposto).replace('/', '-')" 
 							:data-posto="posto.idposto" 
 							:data-fila="posto.fila" 
@@ -212,7 +219,7 @@
 				<div class="biglietti">
 					{{ $t('biglietti') }}
 
-					<div class="tik" v-for="tik in checkedBiglietto.biglietti">
+					<div class="tik" v-for="tik in checkedBiglietto.carrello">
 						<span class="nome" v-if="!tik.qtySnack">{{ tik.nome }}, {{ tik.posto }}</span>
 						<span class="nome snack" v-if="tik.qtySnack">{{ tik.nome }}</span>
 						<span class="qtySnack" v-if="tik.qtySnack && tik.qty > 1">{{ tik.qtySnack }}</span>
@@ -312,14 +319,14 @@
 						</div>
 
 						<div id="btn-checkout-snack" class="submit flex" @click="scegliSnack('chiudi')">
-							Prosegui al checkout
+							{{ $t('Prosegui al checkout') }}
 							<i class="cart"></i>
 						</div>
 					</div>
 				</div>
 
 				<div id="btn-acquista" class="submit flex" :class="{inactive: activeSubmitCheckout == false ? 'inactive' : '' }" @click="activeSubmitCheckout == true ? saveSessionCookie() : null">
-					Acquista i biglietti
+					{{ $t('Acquista i biglietti') }}
 					<i class="cart"></i>
 				</div>
 
@@ -369,10 +376,13 @@
 				n_sala: '',
 				sala: '',
 				idsala: '',
-				idPerf: ''
+				idPerf: '',
+				idTariffa: ''
 			},
 			checkedBiglietto: {
-				biglietti: [],
+				spettacolo: '',
+				carrello: [],
+				// biglietti: [],
 				nBiglietti: 0,
 				recap: [],
 				prezzi: [],
@@ -389,6 +399,10 @@
 			},
 			postiSala: [],
 			postiScelti: [],
+			postiChecked: {
+				posti: [],
+				checked: true,
+			},
 			activeSubmitCheckout: false,
 			isCheckout: false,
 			snackChoose: false,
@@ -402,72 +416,6 @@
 			dataSel: {
 				cat: '',
 				qty: 0
-			},
-			snacks: {
-				food: [
-					{
-						id: 'popcorn-salati',
-						nome: 'PopCorn Salati',
-						prezzo: 4,
-					},
-					{
-						id: 'popcorn-caramello',
-						nome: 'PopCorn Caramello',
-						prezzo: 4,
-					},
-					{
-						id: 'mms',
-						nome: 'M&Ms',
-						prezzo: 3,
-					},
-					{
-						id: 'caramelle',
-						nome: 'Caramelle',
-						prezzo: 5,
-					},
-					{
-						id: 'nachos',
-						nome: 'Nachos',
-						prezzo: 7,
-					},
-				],
-				drink: [
-					{
-						id: 'acqua',
-						nome: 'Acqua',
-						prezzo: 1,
-					},
-					{
-						id: 'coca-cola',
-						nome: 'Coca Cola',
-						prezzo: 3,
-					},
-					{
-						id: 'pepsi',
-						nome: 'Pepsi',
-						prezzo: 3,
-					},
-					{
-						id: 'sprite',
-						nome: 'Sprite',
-						prezzo: 3,
-					},
-					{
-						id: 'fanta',
-						nome: 'Fanta',
-						prezzo: 3,
-					},
-					{
-						id: 'te-al-limone',
-						nome: 'Té al Limone',
-						prezzo: 3,
-					},
-					{
-						id: 'te-alla-pesca',
-						nome: 'Té alla Pesca',
-						prezzo: 3,
-					},
-				]
 			},
 			browser: '',
         };
@@ -483,8 +431,6 @@
 					durata = evento.durata,
 					attori = evento.attori,
 					genere = evento.genere;
-
-					console.log(performances)
 
 				let durata_arr = durata.split(':'),
 					cast_array = attori.split(','),
@@ -531,8 +477,10 @@
 							nome_sala = (perf.sala).indexOf('SALA') > -1 ? perf.sala : `Sala ${perf.sala}`;
 
 						if (i==0) {
-							this.checkedGiorno = giorno;
+							this.checkedGiorno = Object.keys(this.cookieData).length > 0 && this.cookieData.giorno && this.spettacolo == this.id ? this.cookieData.giorno : giorno;
 						}
+
+						console.log(this.checkedGiorno)
 
 						if (gg != giorno) {
 							
@@ -572,7 +520,7 @@
 						ora = perf.ora,
 						nome_sala = (perf.sala).indexOf('SALA') > -1 ? perf.sala : `Sala ${perf.sala}`;
 
-					this.checkedGiorno = giorno;
+					this.checkedGiorno = Object.keys(this.cookieData).length > 0 && this.cookieData.giorno ? this.cookieData.giorno : giorno;
 
 					if (gg != giorno) {
 						
@@ -608,8 +556,6 @@
 				this.addFotoCast();
 				this.slideContentRec();
 				this.addOrari(this.checkedGiorno);
-
-				console.log(this.progr)
             });
         },
         addImage: function () {
@@ -631,13 +577,11 @@
 					let p = data.query.pages;
 					let page = Object.values(p)[0];
 					let img = page.thumbnail;
-					let foto = img != undefined ? (img.source).replace('50px', '200px') : asset_url+'/placeholder-person-f691e76b.jpg';
+					let foto = img != undefined ? (img.source).replace('50px', '200px') : '';
 
 					attore.foto = foto;
 				});
 			}
-
-			console.log(this.cast)
         },
 		choosePerformance: function(idPerf, idTariffa, ora, idsala, nomesala) {
 			// Prezzi per performance
@@ -651,11 +595,28 @@
 					for (let i = 0; i < details.length; i++) {
 						const prezzo = details[i];
 						
+						// let cookieqty = 0;
+						// for (let i = 0; i < this.checkedBiglietto.biglietti.length; i++) {
+						// 	const biglietto = this.checkedBiglietto.biglietti[i];
+						// 	if (biglietto.id == prezzo.idbiglietto && this.spettacolo == this.id) {
+						// 		cookieqty = biglietto.qty;
+						// 	}
+						// }
+
+						let cookieqty = 0;
+						this.checkedBiglietto.carrello.map((el_cart) => {
+							if (el_cart.type === 'biglietto' && el_cart.tariffa == prezzo.idbiglietto && this.spettacolo == this.id) {
+								cookieqty += el_cart.qty;
+							}
+						})
+
 						tariffe_array.push({
 							id: prezzo.idbiglietto,
+							tariffa: idTariffa,
 							nome: (prezzo.descr_biglietto).toLowerCase(),
 							prezzo: prezzo.prezzo,
 							supplemento: prezzo.supplemento,
+							qty: cookieqty,
 						})
 					}
 
@@ -664,6 +625,7 @@
 				this.checkedOrario.sala = nomesala;
 				this.checkedOrario.idsala = idsala;
 				this.checkedOrario.idPerf = idPerf;
+				this.checkedOrario.idTariffa = idTariffa;
 			});
 		},
 		addOrari: function(daySel) {
@@ -746,6 +708,7 @@
 				.replaceAll('&#233;', 'é')
 				.replaceAll('&#200;', 'È')
 				.replaceAll('&#201;', 'É')
+				.replaceAll('&quot;', '"')
 			
 			return cleanStr;
 		},
@@ -813,54 +776,98 @@
 				targetSlug = targetNome.replaceAll(' ', '-').toLowerCase(),
 				targetPrezzo = targetInput.attr('data-prezzo');
 
-			let targetQty = parseInt(targetInput.val());
-			let minus = targetQty;
 			let tot = 0;
-
-			if(targetQty > 0) {
-				minus = targetQty-1
-			} else 
-				minus = 0
-
-			targetInput.val(minus)
-
+			
 			if (type == '') {
 
+				let targetQty = 0;
+				let minus = 0;
+
+				// Aggiorno la qty dell'input della tariffa
+				for (let i = 0; i < this.prezzi.length; i++) {
+					const el = this.prezzi[i];
+					if (el.id === id) {
+						targetQty = el.qty > 0 ? el.qty-1 : 0;
+						minus = targetQty;
+					}
+				}
+
+				// Aggiorno il recap
+				// Se la qty è 0 elimino il biglietto dal recap
+				// Se la qty è > 0 aggiorno il biglietto nel recap togliendo il dato già presente e reinserendolo con la nuova qty
 				let rrecap = this.checkedBiglietto.recap.findIndex(function(o){
-					return o.id === `${targetSlug}-${targetQty}`;
+					return o.id === `${targetSlug}-${targetQty+1}`;
 				})
 				if (rrecap !== -1) this.checkedBiglietto.recap.splice(rrecap, 1);
 
 				if (minus > 0) {
 					this.checkedBiglietto.recap.push({
+						type: 'biglietto',
 						id: `${targetSlug}-${minus}`,
-						string: `${targetNome} x${minus}`
+						string: `${targetNome} x${minus}`,
+						qty: minus,
 					})
 				}
 				
-				this.checkedBiglietto.nBiglietti = this.checkedBiglietto.nBiglietti -1;
+				this.checkedBiglietto.nBiglietti = this.checkedBiglietto.nBiglietti > 0 ? this.checkedBiglietto.nBiglietti -1 : 0;
 				let index = this.checkedBiglietto.index;
-				
-				let biglietti = this.checkedBiglietto.biglietti.findIndex(function(o){
+
+				let biglietti = this.checkedBiglietto.carrello.findIndex(function(o){
 					return o.id === `${targetSlug}-${index}`;
 				})
-				if (biglietti !== -1) this.checkedBiglietto.biglietti.splice(biglietti, 1);
+				if (biglietti !== -1) this.checkedBiglietto.carrello.splice(biglietti, 1);
+
+				this.removeItemOnce(this.checkedBiglietto.prezzi, parseFloat(targetPrezzo).toFixed(2).replace('.', ','))
+
+				// cerco se esiste già un biglietto con lo stesso id
+				for (let i = 0; i < this.prezzi.length; i++) {
+					const el = this.prezzi[i];
+					if (el.id === id) {
+						el.qty = el.qty > 0 ? el.qty-1 : 0;
+
+						// // elimino il biglietto con lo stesso id
+						// let tikrecap = this.checkedBiglietto.biglietti.findIndex(function(o){
+						// 	return o.id === id;
+						// })
+						// if (tikrecap !== -1) this.checkedBiglietto.biglietti.splice(tikrecap, 1);
+
+						// // aggiungo il biglietto con lo stesso id variando di 1 la qty
+						// this.checkedBiglietto.biglietti.push({
+						// 	type: 'biglietto',
+						// 	index: this.checkedBiglietto.index,
+						// 	tariffa: id,
+						// 	id: el.id,
+						// 	nome: el.nome,
+						// 	prezzo: el.prezzo,
+						// 	qty: el.qty,
+						// 	posto: '',
+						// })
+					}
+				}
 
 				this.checkedBiglietto.index = this.checkedBiglietto.index > 0 ? this.checkedBiglietto.index-1 : 0;
-
-				this.removeItemOnce(this.checkedBiglietto.prezzi, targetPrezzo)
+				this.activeSubmitCheckout = this.nBiglietti !== this.postiScelti.length ? false : true;
 
 			} else if (type == 'snack') {
+				let targetQtySnack = parseInt(targetInput.val());
+				let minus = 0;
+
+				if(targetQtySnack > 0) {
+					minus = targetQtySnack-1
+				}
+
+				targetInput.val(minus)
+
 				let snacks = this.snackChosen.findIndex(function(o){
 					return o.id === targetSlug;
 				})
 				if (snacks !== -1) this.snackChosen.splice(snacks, 1);
 
-				let snacksTik = this.checkedBiglietto.biglietti.findIndex(function(o){
+				let snacksTik = this.checkedBiglietto.carrello.findIndex(function(o){
 					return o.id === targetSlug;
 				})
 				if (snacksTik !== -1) {
-					this.checkedBiglietto.biglietti.splice(snacksTik, 1);
+					this.checkedBiglietto.carrello.splice(snacksTik, 1);
 				}
 
 				let rrecap = this.checkedBiglietto.recap.findIndex(function(o){
@@ -868,9 +875,9 @@
 				})
 				if (rrecap !== -1) this.checkedBiglietto.recap.splice(rrecap, 1);
 
-				let prezzo_precedente = (targetPrezzo * targetQty).toString();
+				let prezzo_precedente = (targetPrezzo * targetQtySnack).toString();
 				let prezzo_attuale = (targetPrezzo * minus).toString();
-				this.removeItemOnce(this.checkedBiglietto.prezzi, prezzo_precedente)
+				this.removeItemOnce(this.checkedBiglietto.prezzi, parseFloat(prezzo_precedente).toFixed(2).replace('.', ','))
 
 				if (minus > 0) {
 					let el = {
@@ -886,21 +893,23 @@
 
 					this.snackChosen.push(el)
 					this.snackChoose = true
-					this.checkedBiglietto.biglietti.push(el)
+					this.checkedBiglietto.carrello.push(el)
 
 					this.checkedBiglietto.recap.push({
+						type: 'snack',
 						id: targetSlug,
-						string: `${targetNome} x${minus}`
+						string: `${targetNome} x${minus}`,
+						qty: minus,
 					})
 
-					this.checkedBiglietto.prezzi.push(prezzo_attuale);
+					this.checkedBiglietto.prezzi.push(parseFloat(prezzo_attuale).toFixed(2).replace('.', ','));
 				
 				} else {
 					if (this.snackChosen.length === 0)
 						this.snackChoose = false
 				}
 
-				if (targetQty > 0)
+				if (targetQtySnack > 0)
 					this.dataSel.qty = this.snackChosen.length > 0 ? this.dataSel.qty -1 : this.snackChosen.length
 
 			}
@@ -937,16 +946,21 @@
 				targetNome = targetInput.attr('data-nome').indexOf('Ingredienti:') > -1 ? targetInput.attr('data-nome').slice(0, targetInput.attr('data-nome').indexOf('Ingredienti:')) : targetInput.attr('data-nome'),
 				targetSlug = targetNome.replaceAll(' ', '-').toLowerCase(),
 				targetPrezzo = targetInput.attr('data-prezzo');
+			
+			let targetQty = 0;
+			// aggiungo 1 alla qty dell'input di tariffa
+			for (let i = 0; i < this.prezzi.length; i++) {
+				const el = this.prezzi[i];
+				if (el.id === id) {
+					targetQty = el.qty+1;
+				}
+			}
 
-			let targetQty = parseInt(targetInput.val());
-			let plus = targetQty+1;
 			let tot = 0;
-
-			targetInput.val(plus);
-			targetQty = parseInt(targetInput.val());
+			targetQty = type == 'snack' ? parseInt(targetInput.val())+1 : targetQty;
 
 			if (targetQty > 0) {
-				
+				// se type è biglietto
 				if (type == '') {
 
 					let rrecap = this.checkedBiglietto.recap.findIndex(function(o){
@@ -955,14 +969,18 @@
 					if (rrecap !== -1) this.checkedBiglietto.recap.splice(rrecap, 1);
 
 					this.checkedBiglietto.recap.push({
+						type: 'biglietto',
 						id: `${targetSlug}-${targetQty}`,
-						string: `${targetNome} x${targetQty}`
+						string: `${targetNome} x${targetQty}`,
+						qty: targetQty,
 					})
 
-					this.checkedBiglietto.prezzi.push(targetPrezzo)
+					this.checkedBiglietto.prezzi.push(parseFloat(targetPrezzo).toFixed(2).replace('.', ','));
 					
 					let el = {
 						type: 'biglietto',
+						index: this.checkedBiglietto.index,
+						tariffa: id,
 						id: `${targetSlug}-${this.checkedBiglietto.index}`,
 						nome: targetNome,
 						prezzo: parseFloat(targetPrezzo).toFixed(2).replace('.', ','),
@@ -970,10 +988,37 @@
 						posto: '',
 					};
 
-					this.checkedBiglietto.biglietti.push(el)
-
+					this.checkedBiglietto.carrello.push(el)
 					this.checkedBiglietto.nBiglietti = this.checkedBiglietto.nBiglietti +1;
 
+					// Aggiorno la qty dell'input di tariffa
+					for (let i = 0; i < this.prezzi.length; i++) {
+						const el = this.prezzi[i];
+						if (el.id === id) {
+							el.qty = el.qty+1;
+
+							// // elimino il biglietto con lo stesso id
+							// let tikrecap = this.checkedBiglietto.biglietti.findIndex(function(o){
+							// 	return o.id === id;
+							// })
+							// if (tikrecap !== -1) this.checkedBiglietto.biglietti.splice(tikrecap, 1);
+
+							// // aggiungo il biglietto con lo stesso id variando di 1 la qty
+							// this.checkedBiglietto.biglietti.push({
+							// 	type: 'biglietto',
+							// 	index: this.checkedBiglietto.index,
+							// 	tariffa: el.id,
+							// 	id: `${targetSlug}-${this.checkedBiglietto.index}`,
+							// 	nome: el.nome,
+							// 	prezzo: el.prezzo,
+							// 	qty: el.qty,
+							// })
+						}
+					}
+
+					this.activeSubmitCheckout = this.nBiglietti !== this.postiScelti.length ? false : true;
+
+				// se type appartiene al food & beverage
 				} else if (type == 'snack') {
 
 					let rrecap = this.checkedBiglietto.recap.findIndex(function(o){
@@ -982,24 +1027,21 @@
 					if (rrecap !== -1) this.checkedBiglietto.recap.splice(rrecap, 1);
 
 					this.checkedBiglietto.recap.push({
+						type: 'snack',
 						id: targetSlug,
-						string: `${targetNome} x${targetQty}`
+						string: `${targetNome} x${targetQty}`,
+						qty: targetQty,
 					})
 
-					let biglietti = this.checkedBiglietto.biglietti.findIndex(function(o){
+					let biglietti = this.checkedBiglietto.carrello.findIndex(function(o){
 						return o.id === targetSlug;
 					})
-					if (biglietti !== -1) this.checkedBiglietto.biglietti.splice(biglietti, 1);
-
-					// let snacks = this.snackChosen.findIndex(function(o){
-					// 	return o.id === targetSlug;
-					// })
-					// if (snacks !== -1) this.snackChosen.splice(snacks, 1);
+					if (biglietti !== -1) this.checkedBiglietto.carrello.splice(biglietti, 1);
 
 					let prezzo_remove = (targetPrezzo * (targetQty-1)).toString();
 					let prezzo_tot = (targetPrezzo * targetQty).toString();
-					this.removeItemOnce(this.checkedBiglietto.prezzi, prezzo_remove);
-					this.checkedBiglietto.prezzi.push(prezzo_tot);
+					this.removeItemOnce(this.checkedBiglietto.prezzi, parseFloat(prezzo_remove).toFixed(2).replace('.', ','));
+					this.checkedBiglietto.prezzi.push(parseFloat(prezzo_tot).toFixed(2).replace('.', ','));
 
 					let el = {
 						type: 'snack',
@@ -1015,13 +1057,12 @@
 					this.snackChosen.push(el)
 					this.snackChoose = true
 					this.dataSel.qty+=1
-					this.checkedBiglietto.biglietti.push(el)
+					this.checkedBiglietto.carrello.push(el)
 
-					console.log(this.snackChosen)
+					// modifico il valore dell'input appena incrementato
+					targetInput.val(targetQty);
 				}
 			}
-			
-			console.log(this.checkedBiglietto)
 
 			if (this.checkedBiglietto.recap.length > 0) {
 				$.each(this.checkedBiglietto.prezzi,function(){tot+=parseFloat(this) || 0;});
@@ -1032,7 +1073,6 @@
 				this.checkedBiglietto.isChecked = false;
 				this.checkedBiglietto.totale = 0;
 			}
-
 			 
 			this.nBiglietti = this.checkedBiglietto.nBiglietti;
 			this.recap = this.checkedBiglietto.recap.map(function(elem){
@@ -1041,16 +1081,19 @@
 
 			this.recap += ` | ${this.checkedBiglietto.totString}`;
 
-			if(this.checkedGiorno != '' && this.checkedOrario != '' && this.checkedBiglietto.isChecked === true) {
+			if(this.checkedGiorno != '' && this.checkedOrario != '' && this.checkedBiglietto.isChecked === true)
 				this.activeSubmit = true
-			}
+
+			console.log(this.checkedBiglietto)
 		},
 		removeItemOnce: function(arr, value) {
-			let index = arr.indexOf(value);
-			if (index > -1) {
-				arr.splice(index, 1);
+			if (arr !== undefined) {
+				let index = arr.indexOf(value);
+				if (index > -1) {
+					arr.splice(index, 1);
+				}
+				return arr;
 			}
-			return arr;
 		},
 		removeItemAll: function(arr, value) {
 			let i = 0;
@@ -1073,12 +1116,17 @@
 					console.log(jsonData);
 					
 					this.postiSala = jsonData.Sala.posti.posto;
+
+					for (let i = 0; i < this.postiSala.length; i++) {
+						const posto = this.postiSala[i];
+						this.postiSala[i].checked = Object.keys(this.cookieData).length > 0 && this.cookieData.spettacolo === this.id && this.cookieData.posti.includes(posto.idposto) ? true : false;
+					}
 					console.log(this.postiSala);
 
 				this.tabChange('posti');
             });
 
-			// posti occupati
+			// To Do: posti occupati
 			axios.get(`${WebtikBase}_getOccupancy?idcinema=${idCinema}&idperformance=${this.checkedOrario.idPerf}`)
                 .then((res) => {
 					let xmldata = res.data;
@@ -1114,7 +1162,17 @@
 
 			return colonne;
 		},
-		scegliPosto: function($event, id) {
+		/**
+		 * Scelta dei posti nella piantina della sala
+		 * @param {*} $event 
+		 * @param {int} id // id del posto
+		 */
+		scegliPosto: function($event, id) {			
+			if (this.postiScelti > 0 && this.checkedBiglietto.spettacolo == this.id) {
+				this.postiScelti.push(this.checkedBiglietto.posti);
+			}
+
+			console.log(this.postiScelti)
 
 			if (!this.postiScelti.includes(id)) {
 				if(this.postiScelti.length < parseInt(this.nBiglietti)) {
@@ -1127,24 +1185,29 @@
 				this.postiScelti.splice(this.postiScelti.indexOf(id), 1);
 			}
 
-			for (let i = 0; i < this.postiScelti.length; i++) {
-				const postoID = this.postiScelti[i],
-					posto_arr = postoID.split('/'),
-					fila = posto_arr[0],
-					posto = posto_arr[1];
+			// Assegno il posto al biglietto
+			for (let index = 0; index < this.checkedBiglietto.carrello.length; index++) {
+				const element = this.checkedBiglietto.carrello[index];
 
-				if (!Array.isArray(this.checkedBiglietto.biglietti[i])) {
-					this.checkedBiglietto.biglietti[i].posto = `Fila ${fila} Posto ${posto}`
+				let assegnato = false;
+
+				if (assegnato === false) {
+					if (!Array.isArray(element) && element.type == 'biglietto' && element.posto == '') {
+
+						for (let i = (element.index-1); i < this.postiScelti.length; i++) {
+							const postoID = this.postiScelti[i],
+								posto_arr = postoID.split('/'),
+								fila = posto_arr[0],
+								posto = posto_arr[1];
+							
+							if (assegnato === false) {
+								element.posto = `Fila ${fila} Posto ${posto}`;
+								assegnato = true;
+							}
+						}
+					}
 				}
-				
-				// this.checkedBiglietto.biglietti[i].posto = `Fila ${fila} Posto ${posto}`
 			}
-
-			console.log(this.postiScelti)
-			console.log(this.postiScelti.length)
-			console.log(parseInt(this.nBiglietti))
-
-			console.log(this.checkedBiglietto.biglietti)
 
 			if (parseInt(this.nBiglietti) === this.postiScelti.length) {
 				this.activeSubmitCheckout = true;
@@ -1161,37 +1224,152 @@
 				"sessionId": "azttmxtdaa_100",
 				"trackid": "2200"
 			})
-			.then((res) => {
-					let categorie = res.data.TastieraArticoli.Nodi;
-					
-					console.log(categorie);
-					// foto
-					//`http://fce.winticstellar.com/evolution/webapi/Handlers/handlerArticoli.ashx?idnegozio=${idCinema}&idarticolo=${idArticolo}&LOB_SIZE=SMALL&t=20230707084628`;
-					this.foodCat = categorie;
-            });
+			.then((res) => {this.foodCat = res.data.TastieraArticoli.Nodi;}
+			);
+		},
+		fetchCookiedata: function() {
+			let sessionCookie = localStorage.getItem('sessionCookie') ? JSON.parse(localStorage.getItem('sessionCookie')) : {},
+				snackChosen = Object.keys(sessionCookie).length > 0 && Array.isArray(sessionCookie.snacksArray) ? sessionCookie.snacksArray : [],
+				foodQty = 0,
+				scelte = [];
+
+			this.recap = sessionCookie.recap ? sessionCookie.recap : '';
+
+			console.log(scelte);
+			snackChosen.map(function(el){
+				if (! Array.isArray(el))
+					scelte.push(el);
+			});
+
+			this.snackChosen = scelte;
+			this.snackChoose = this.snackChosen.length > 0 ? true : false;
+
+			if (this.snackChosen.length > 0) {
+				$.each(this.snackChosen,function(){foodQty+=parseInt(this.qty) || 0;});
+				this.dataSel.qty = foodQty;
+			} else {
+				this.dataSel.qty = 0;
+			}
+			
+			console.log(sessionCookie);
+			this.cookieData = sessionCookie;
+			
+			if (Object.keys(this.cookieData).length > 0) {
+				this.spettacolo = this.cookieData.spettacolo ? this.cookieData.spettacolo : '';
+				this.nBiglietti = this.cookieData.nBiglietti && this.cookieData.spettacolo === this.id ? this.cookieData.nBiglietti : 0;
+				this.postiScelti = this.cookieData.posti && this.cookieData.spettacolo === this.id ? this.cookieData.posti : [];
+
+				this.checkedGiorno = this.cookieData.giorno ? this.cookieData.giorno : '';
+				this.checkedOrario.ora = this.cookieData.ora ? this.cookieData.ora : '';
+				this.checkedOrario.sala = this.cookieData.sala ? this.cookieData.sala : '';
+				this.checkedOrario.idsala = this.cookieData.idsala ? this.cookieData.idsala : '';
+				this.checkedOrario.idPerf = this.cookieData.idPerf ? this.cookieData.idPerf : '';
+				this.checkedOrario.idTariffa = this.cookieData.idTariffa ? this.cookieData.idTariffa : '';
+
+				this.checkedBiglietto = this.cookieData.checkedBiglietto ? this.cookieData.checkedBiglietto : {};
+				this.checkedBiglietto.carrello = this.cookieData.checkedBiglietto.carrello ? this.cookieData.checkedBiglietto.carrello : [];
+				// this.checkedBiglietto.biglietti = this.cookieData.checkedBiglietto.biglietti && this.cookieData.spettacolo === this.id ? this.cookieData.checkedBiglietto.biglietti : [];
+				this.checkedBiglietto.recap = this.cookieData.recap ? this.cookieData.recap : [];
+				this.checkedBiglietto.prezzi = this.cookieData.prezzi && this.cookieData.spettacolo === this.id ? this.cookieData.prezzi : [];
+				this.checkedBiglietto.totString = this.cookieData.totString ? this.cookieData.totString : '';
+				this.checkedBiglietto.totale = this.cookieData.totale ? this.cookieData.totale : 0;
+				this.checkedBiglietto.index = this.cookieData.index && this.cookieData.spettacolo === this.id ? this.cookieData.index : 0;
+				this.checkedBiglietto.nBiglietti = this.cookieData.nBiglietti && this.cookieData.spettacolo === this.id ? this.cookieData.nBiglietti : 0;
+				this.checkedBiglietto.isChecked = this.cookieData.isChecked && this.cookieData.spettacolo === this.id ? this.cookieData.isChecked : false;
+
+				this.recap = this.cookieData.recapString ? this.cookieData.recapString : '';
+				this.activeSubmit = this.cookieData.activeSubmit && this.cookieData.spettacolo === this.id ? this.cookieData.activeSubmit : false;
+				this.activeSubmitCheckout = parseInt(this.nBiglietti) === this.postiScelti.length && this.cookieData.spettacolo === this.id ? true : false;
+			}
+
+			if (this.id != this.spettacolo) {
+				// tolgo i biglietti scelti per un altro spettacolo dal carrello
+				let carrello = this.checkedBiglietto.carrello,
+					nuovo_carrello = [];
+
+				for (let i = 0; i < carrello.length; i++) {
+					const element = carrello[i];
+
+					if (element.type != 'biglietto') {
+						nuovo_carrello.push({
+							type: element.type,
+							id: element.id,
+							nome: element.nome,
+							idnodo: element.idnodo,
+							prezzo: element.prezzo,
+							prezzoTot: element.prezzoTot,
+							qty: element.qty,
+							qtySnack: element.qtySnack,
+						});
+
+						this.checkedBiglietto.prezzi.push(element.prezzoTot);
+					}
+				}
+
+				this.checkedBiglietto.carrello = nuovo_carrello;
+
+				// tolgo i biglietti scelti per un altro spettacolo dal recap
+				let recap = this.checkedBiglietto.recap,
+					nuovo_recap = [];
+
+				for (let i = 0; i < recap.length; i++) {
+					const element = recap[i];
+
+					if (element.type != 'biglietto') {
+						nuovo_recap.push({
+							type: element.type,
+							id: element.id,
+							string: element.string,
+						});
+					}
+				}
+				this.checkedBiglietto.recap = nuovo_recap;
+				this.recap = this.checkedBiglietto.recap.map(function(elem){
+					return elem.string;
+				}).join(' | ');
+
+				if (this.checkedBiglietto.recap.length > 0) {
+					let tot = 0;
+					$.each(this.checkedBiglietto.prezzi,function(){tot+=parseFloat(this) || 0;});
+					this.checkedBiglietto.totString = `Totale: ${parseFloat(tot).toFixed(2).replace('.', ',')}€`;
+					this.checkedBiglietto.totale = parseFloat(tot).toFixed(2).replace('.', ',');
+				}
+				this.recap += ` | ${this.checkedBiglietto.totString}`;
+			}
+
+			console.log(this.checkedBiglietto)
+
+			this.choosePerformance(this.checkedOrario.idPerf, this.checkedOrario.idTariffa, this.checkedOrario.ora, this.checkedOrario.idsala, this.checkedOrario.sala);
 		},
 		saveSessionCookie: function() {
-			let posti = this.checkedBiglietto.biglietti.map(function(elem){
-				return elem.posto;
-			}).join(' | '),
-				snacks = this.checkedBiglietto.biglietti.map(function(elem){
+			let sessionSnack = this.snackChosen.map(function(elem){
+					return elem.nome;
+				}).join(' | '),
+				snacksArray = this.checkedBiglietto.carrello.map(function(elem){
 					return elem.type === 'snack' ? elem : [];
 				});
 
 			let sessionCookie = {
+				spettacolo: this.id,
 				giorno: this.checkedGiorno,
 				ora: this.checkedOrario.ora,
 				sala: this.checkedOrario.sala,
 				idsala: this.checkedOrario.idsala,
 				idPerf: this.checkedOrario.idPerf,
 				idTariffa: this.checkedOrario.idTariffa,
-				biglietti: this.checkedBiglietto.biglietti,
-				snack: snacks,
-				posti: posti,
+				snack: sessionSnack,
+				snacksArray: snacksArray,
+				posti: this.postiScelti,
 				totale: this.checkedBiglietto.totale,
 				nBiglietti: this.checkedBiglietto.nBiglietti,
 				recap: this.checkedBiglietto.recap,
+				recapString: this.recap,
 				checkedBiglietto: this.checkedBiglietto,
+				prezzi: this.checkedBiglietto.prezzi,
+				isChecked: this.checkedBiglietto.isChecked,
+				totString: this.checkedBiglietto.totString,
+				index: this.checkedBiglietto.index,
+				activeSubmit: this.activeSubmit,
 			}
 
 			let sessionCookieStr = JSON.stringify(sessionCookie);
@@ -1298,6 +1476,7 @@
 		}
     },
     mounted() {
+		this.fetchCookiedata();
         this.fetchEvento();
 		this.isSafari();
 		this.fetchFood();

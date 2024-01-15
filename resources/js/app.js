@@ -7,6 +7,7 @@ import AlCinema from './components/AlCinema.vue';
 import SingleFilm from './components/SingleFilm.vue';
 import Food from './components/Food.vue';
 import SingleFood from './components/SingleFood.vue';
+import Programmazione from './components/Programmazione.vue';
 
 const app = createApp({})
 
@@ -22,6 +23,7 @@ app.component('cmp-alcinema', AlCinema)
 app.component('cmp-singlefilm', SingleFilm)
 app.component('cmp-food', Food)
 app.component('cmp-singlefood', SingleFood)
+app.component('cmp-film', Programmazione)
 
 app.mount('#app')
 

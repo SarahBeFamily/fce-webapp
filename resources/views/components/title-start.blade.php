@@ -7,6 +7,8 @@
 		{{ __('Accedi') }}
 	@elseif ( $attributes->has('register') )
 		{{ __('Registrati') }}
+	@elseif ( $attributes->has('recupera') )
+		{{ __('Recupera Password') }}
 	@endif
 	
 </h1>

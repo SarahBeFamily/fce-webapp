@@ -1,7 +1,4 @@
 <template>
-	<h1>Food & Beverage</h1>
-	<p>Seleziona uno tra i nostri menù dai sapori ricercati per un’esperienza culinaria di qualità.</p>
-
 	<!-- <div class="recap">{{ recap }}</div> -->
 
 		<div class="food-wrap">
@@ -28,7 +25,7 @@
 						:id="articolo.idarticolo"
 						:id-nodopadre="articolo.idnodoPadre"
 					>
-						<a :href="'/food/'+articolo.idarticolo" class="foto-food" :style="{'background-image': 'url(http://fce.winticstellar.com/evolution/webapi/Handlers/handlerArticoli.ashx?idnegozio='+idCinema+'&idarticolo='+articolo.idarticolo+'&LOB_SIZE=SMALL&t=20230707084628)'}"></a>
+						<a href="#" @click="saveSessionCookie('food/'+articolo.idarticolo)" class="foto-food" :style="{'background-image': 'url(http://fce.winticstellar.com/evolution/webapi/Handlers/handlerArticoli.ashx?idnegozio='+idCinema+'&idarticolo='+articolo.idarticolo+'&LOB_SIZE=SMALL&t=20230707084628)'}"></a>
 						<p class="nome">{{ articolo.articolo.nome.indexOf('Ingredienti:') > -1 ? articolo.articolo.nome.slice(0, articolo.articolo.nome.indexOf('Ingredienti:')) : articolo.articolo.nome }}</p>
 						
 						<div class="quantity">
@@ -57,12 +54,12 @@
 
 					<div class="buttons-submit">
 						<div id="btn-checkout-snack" class="submit flex" @click="saveSessionCookie('checkout')">
-							Prosegui al checkout
+							{{ $t('Prosegui al checkout') }}
 							<i class="cart"></i>
 						</div>
 
 						<div id="btn-film" class="submit flex" @click="saveSessionCookie('film')">
-							Scegli film
+							{{ $t('Scegli film') }}
 							<i class="film"></i>
 						</div>
 					</div>
@@ -93,13 +90,33 @@
 				active: true
 			},
 			cookieData: {},
-			recap: '',
+			recapString: '',
 			snackChoose: false,
 			snackChosen: [],
 			snackInfo: 'hidden',
 			activeSnackTab: {
 				dataTab: '',
 				active: true
+			},
+			checkedGiorno: '',
+			checkedOrario: {
+				ora: '',
+				n_sala: '',
+				sala: '',
+				idsala: '',
+				idPerf: '',
+				idTariffa: '',
+			},
+			checkedBiglietto: {
+				carrello: [],
+				biglietti: [],
+				nBiglietti: 0,
+				recap: [],
+				prezzi: [],
+				totString: '',
+				totale: 0,
+				index: 0,
+				isChecked: false,
 			},
 			foodCat: [],
 			dataSel: {
@@ -112,15 +129,23 @@
     methods: {
 		fetchCookiedata: function() {
 			let sessionCookie = localStorage.getItem('sessionCookie') ? JSON.parse(localStorage.getItem('sessionCookie')) : {},
-				snackChosen = sessionCookie.snack.length > 0 ? sessionCookie.snack : [],
-				foodQty = 0;
+				snackChosen = Object.keys(sessionCookie).length > 0 && Array.isArray(sessionCookie.snacksArray) ? sessionCookie.snacksArray : [],
+				foodQty = 0,
+				scelte = [];
 
-			this.recap = sessionCookie.recap;
-			this.snackChosen = snackChosen;
-			this.snackChoose = snackChosen.length > 0 ? true : false;
+			this.recap = sessionCookie.recap ? sessionCookie.recap : '';
 
-			if (snackChosen.length > 0) {
-				$.each(snackChosen,function(){foodQty+=parseInt(this.qty) || 0;});
+			console.log(scelte);
+			snackChosen.map(function(el){
+				if (! Array.isArray(el))
+					scelte.push(el);
+			});
+
+			this.snackChosen = scelte;
+			this.snackChoose = this.snackChosen.length > 0 ? true : false;
+
+			if (this.snackChosen.length > 0) {
+				$.each(this.snackChosen,function(){foodQty+=parseInt(this.qty) || 0;});
 				this.dataSel.qty = foodQty;
 			} else {
 				this.dataSel.qty = 0;
@@ -128,6 +153,29 @@
 			
 			console.log(sessionCookie);
 			this.cookieData = sessionCookie;
+
+			if (Object.keys(this.cookieData).length > 0) {
+				this.checkedGiorno = this.cookieData.giorno ? this.cookieData.giorno : '';
+				this.checkedOrario.ora = this.cookieData.ora ? this.cookieData.ora : '';
+				this.checkedOrario.sala = this.cookieData.sala ? this.cookieData.sala : '';
+				this.checkedOrario.idsala = this.cookieData.idsala ? this.cookieData.idsala : '';
+				this.checkedOrario.idPerf = this.cookieData.idPerf ? this.cookieData.idPerf : '';
+				this.checkedOrario.idTariffa = this.cookieData.idTariffa ? this.cookieData.idTariffa : '';
+				this.checkedBiglietto = this.cookieData.checkedBiglietto ? this.cookieData.checkedBiglietto : {};
+				this.checkedBiglietto.carrello = this.cookieData.carrello ? this.cookieData.carrello : [];
+				this.checkedBiglietto.biglietti = this.cookieData.biglietti ? this.cookieData.biglietti : [];
+				this.checkedBiglietto.nBiglietti = this.cookieData.nBiglietti ? this.cookieData.nBiglietti : 0;
+				this.checkedBiglietto.recap = this.cookieData.recap ? this.cookieData.recap : [];
+				this.checkedBiglietto.posti = this.cookieData.posti ? this.cookieData.posti : [];
+				this.checkedBiglietto.prezzi = this.cookieData.prezzi ? this.cookieData.prezzi : [];
+				this.checkedBiglietto.totString = this.cookieData.totString ? this.cookieData.totString : '';
+				this.checkedBiglietto.totale = this.cookieData.totale ? this.cookieData.totale : 0;
+				this.checkedBiglietto.index = this.cookieData.index ? this.cookieData.index : 0;
+				this.checkedBiglietto.isChecked = this.cookieData.isChecked ? this.cookieData.isChecked : false;
+				this.recap = this.cookieData.recapString ? this.cookieData.recapString : '';
+			}
+
+			console.log(Object.keys(this.cookieData).length)
 		},
 		fetchFood: function() {
 			axios.post(`http://fce.winticstellar.com/evolution/webapi/api/getArticoliNegozio`,
@@ -177,7 +225,7 @@
                     centerMode: false,
                     variableWidth: false,
                     slidesToShow: 6,
-                    slidesToScroll: 1,
+                    slidesToScroll: 6,
                     autoplay: false,
                     autoplaySpeed: 2500,
                     cssEase: 'cubic-bezier(0.785, 0.135, 0.150, 0.860)',
@@ -186,7 +234,7 @@
                         breakpoint: 1280,
                         settings: {
                             slidesToShow: 4.5,
-                            slidesToScroll: 1,
+                            slidesToScroll: 4,
                             infinite: true,
                             dots: true
                         	}
@@ -195,7 +243,7 @@
                         breakpoint: 1024,
                         settings: {
                             slidesToShow: 3.5,
-                            slidesToScroll: 1,
+                            slidesToScroll: 3,
                             infinite: true,
                             dots: true
                         	}
@@ -204,7 +252,7 @@
                         breakpoint: 600,
                         settings: {
                             slidesToShow: 2.1,
-                            slidesToScroll: 1
+                            slidesToScroll: 2
                         	}
                         },
                         // You can unslick at a given breakpoint now by adding:
@@ -248,21 +296,21 @@
 			})
 			if (snacks !== -1) this.snackChosen.splice(snacks, 1);
 
-			let snacksTik = this.cookieData.checkedBiglietto.biglietti.findIndex(function(o){
+			let snacksTik = this.checkedBiglietto.carrello.findIndex(function(o){
 				return o.id === targetSlug;
 			})
 			if (snacksTik !== -1) {
-				this.cookieData.checkedBiglietto.biglietti.splice(snacksTik, 1);
+				this.checkedBiglietto.carrello.splice(snacksTik, 1);
 			}
 
-			let rrecap = this.cookieData.checkedBiglietto.recap.findIndex(function(o){
+			let rrecap = this.checkedBiglietto.recap.findIndex(function(o){
 				return o.id === targetSlug;
 			})
-			if (rrecap !== -1) this.cookieData.checkedBiglietto.recap.splice(rrecap, 1);
+			if (rrecap !== -1) this.checkedBiglietto.recap.splice(rrecap, 1);
 
 			let prezzo_precedente = (targetPrezzo * targetQty).toString();
 			let prezzo_attuale = (targetPrezzo * minus).toString();
-			this.removeItemOnce(this.cookieData.checkedBiglietto.prezzi, prezzo_precedente)
+			this.removeItemOnce(this.checkedBiglietto.prezzi, prezzo_precedente)
 
 			if (minus > 0) {
 				let el = {
@@ -278,14 +326,15 @@
 
 				this.snackChosen.push(el)
 				this.snackChoose = true
-				this.cookieData.checkedBiglietto.biglietti.push(el)
+				this.checkedBiglietto.carrello.push(el)
 
-				this.cookieData.checkedBiglietto.recap.push({
+				this.checkedBiglietto.recap.push({
+					type: 'snack',
 					id: targetSlug,
 					string: `${targetNome} x${minus}`
 				})
 
-				this.cookieData.checkedBiglietto.prezzi.push(prezzo_attuale);
+				this.checkedBiglietto.prezzi.push(prezzo_attuale);
 			
 			} else {
 				if (this.snackChosen.length === 0)
@@ -296,25 +345,25 @@
 				this.dataSel.qty = this.snackChosen.length > 0 ? this.dataSel.qty -1 : this.snackChosen.length
 
 
-			if (this.cookieData.checkedBiglietto.recap.length > 0) {
-				$.each(this.cookieData.checkedBiglietto.prezzi,function(){tot+=parseFloat(this) || 0;});
-				this.cookieData.checkedBiglietto.totString = `Totale: ${parseFloat(tot).toFixed(2).replace('.', ',')}€`;
-				this.cookieData.checkedBiglietto.isChecked = true;
-				this.cookieData.checkedBiglietto.totale = parseFloat(tot).toFixed(2).replace('.', ',');
+			if (this.checkedBiglietto.recap.length > 0) {
+				$.each(this.checkedBiglietto.prezzi,function(){tot+=parseFloat(this) || 0;});
+				this.checkedBiglietto.totString = `Totale: ${parseFloat(tot).toFixed(2).replace('.', ',')}€`;
+				this.checkedBiglietto.isChecked = true;
+				this.checkedBiglietto.totale = parseFloat(tot).toFixed(2).replace('.', ',');
 			} else {
-				this.cookieData.checkedBiglietto.isChecked = false;
-				this.cookieData.checkedBiglietto.totString = '';
-				this.cookieData.checkedBiglietto.totale = 0;
-				this.cookieData.checkedBiglietto.prezzi = [];
+				this.checkedBiglietto.isChecked = false;
+				this.checkedBiglietto.totString = '';
+				this.checkedBiglietto.totale = 0;
+				this.checkedBiglietto.prezzi = [];
 			}
 
 			console.log(this.checkedBiglietto)
 
-			this.recap = this.cookieData.checkedBiglietto.recap.map(function(elem){
+			this.recapString = this.checkedBiglietto.recap.map(function(elem){
 				return elem.string;
 			}).join(' | ');
 
-			this.recap += ` | ${this.cookieData.checkedBiglietto.totString}`;
+			this.recapString += ` | ${this.checkedBiglietto.totString}`;
 		},
 		qtyPlus: function(id) {
 			const targetInput = $(`#qty-${id}`),
@@ -331,20 +380,21 @@
 
 			if (targetQty > 0) {
 
-				let rrecap = this.cookieData.checkedBiglietto.recap.findIndex(function(o){
+				let rrecap = this.checkedBiglietto.recap.findIndex(function(o){
 					return o.id === targetSlug;
 				})
-				if (rrecap !== -1) this.cookieData.checkedBiglietto.recap.splice(rrecap, 1);
+				if (rrecap !== -1) this.checkedBiglietto.recap.splice(rrecap, 1);
 
-				this.cookieData.checkedBiglietto.recap.push({
+				this.checkedBiglietto.recap.push({
+					type: 'snack',
 					id: targetSlug,
 					string: `${targetNome} x${targetQty}`
 				})
 
-				let biglietti = this.cookieData.checkedBiglietto.biglietti.findIndex(function(o){
+				let biglietti = this.checkedBiglietto.carrello.findIndex(function(o){
 						return o.id === targetSlug;
 					})
-				if (biglietti !== -1) this.cookieData.checkedBiglietto.biglietti.splice(biglietti, 1);
+				if (biglietti !== -1) this.checkedBiglietto.carrello.splice(biglietti, 1);
 
 				let snacks = this.snackChosen.findIndex(function(o){
 						return o.id === targetSlug;
@@ -353,10 +403,11 @@
 
 				let prezzo_remove = (targetPrezzo * (targetQty-1)).toString();
 				let prezzo_tot = (targetPrezzo * targetQty).toString();
-				this.removeItemOnce(this.cookieData.checkedBiglietto.prezzi, prezzo_remove);
-				this.cookieData.checkedBiglietto.prezzi.push(prezzo_tot);
+				this.removeItemOnce(this.checkedBiglietto.prezzi, prezzo_remove);
+				this.checkedBiglietto.prezzi.push(prezzo_tot);
 
 				let el = {
+					type: 'snack',
 					id: targetSlug,
 					nome: targetNome,
 					idnodo: id,
@@ -369,34 +420,34 @@
 				this.snackChosen.push(el)
 				this.snackChoose = true
 				this.dataSel.qty+=1
-				this.cookieData.checkedBiglietto.biglietti.push(el)
+				this.checkedBiglietto.carrello.push(el)
 
 				console.log(this.snackChosen)
 			}
 			
-			console.log(this.cookieData.checkedBiglietto)
-
-			if (this.cookieData.checkedBiglietto.recap.length > 0) {
-				$.each(this.cookieData.checkedBiglietto.prezzi,function(){tot+=parseFloat(this) || 0;});
-				this.cookieData.checkedBiglietto.totString = `Totale: ${parseFloat(tot).toFixed(2).replace('.', ',')}€`;
-				this.cookieData.checkedBiglietto.isChecked = true;
-				this.cookieData.checkedBiglietto.totale = parseFloat(tot).toFixed(2).replace('.', ',');
+			if (this.checkedBiglietto.recap.length > 0) {
+				$.each(this.checkedBiglietto.prezzi,function(){tot+=parseFloat(this) || 0;});
+				this.checkedBiglietto.totString = `Totale: ${parseFloat(tot).toFixed(2).replace('.', ',')}€`;
+				this.checkedBiglietto.isChecked = true;
+				this.checkedBiglietto.totale = parseFloat(tot).toFixed(2).replace('.', ',');
 			} else {
-				this.cookieData.checkedBiglietto.totale = 0;
+				this.checkedBiglietto.totale = 0;
 			}
 
-			this.recap = this.cookieData.checkedBiglietto.recap.map(function(elem){
+			this.recapString = this.checkedBiglietto.recap.map(function(elem){
 				return elem.string;
 			}).join(' | ');
 
-			this.recap += ` | ${this.cookieData.checkedBiglietto.totString}`;
+			this.recapString += ` | ${this.checkedBiglietto.totString}`;
 		},
 		removeItemOnce: function(arr, value) {
-			let index = arr.indexOf(value);
-			if (index > -1) {
-				arr.splice(index, 1);
+			if (arr !== undefined) {
+				let index = arr.indexOf(value);
+				if (index > -1) {
+					arr.splice(index, 1);
+				}
+				return arr;
 			}
-			return arr;
 		},
 		removeItemAll: function(arr, value) {
 			let i = 0;
@@ -411,22 +462,31 @@
 		},
 		saveSessionCookie: function($path) {
 			let sessionSnack = this.snackChosen.map(function(elem){
-				return elem.nome;
-			}).join(' | ');
+					return elem.nome;
+				}).join(' | '),
+				posti = this.checkedBiglietto.carrello.map(function(elem){
+					return elem.posto;
+				}),
+				snacksArray = this.checkedBiglietto.carrello.map(function(elem){
+					return elem.type === 'snack' ? elem : [];
+				});
 
 			let sessionCookie = {
-				giorno: '',
-				ora: '',
-				sala: '',
-				idsala: '',
-				idPerf: '',
-				idTariffa: '',
-				biglietti: [],
+				giorno: this.checkedGiorno,
+				ora: this.checkedOrario.ora,
+				sala: this.checkedOrario.sala,
+				idsala: this.checkedOrario.idsala,
+				idPerf: this.checkedOrario.idPerf,
+				idTariffa: this.checkedOrario.idTariffa,
+				carrello: this.checkedBiglietto.carrello,
+				biglietti: this.checkedBiglietto.biglietti,
 				snack: sessionSnack,
-				posti: '',
+				snacksArray: snacksArray,
+				posti: posti,
 				totale: this.totale,
 				nBiglietti: 0,
-				recap: this.recap,
+				recap: this.checkedBiglietto.recap,
+				recapString: this.recapString
 			}
 
 			let sessionCookieStr = JSON.stringify(sessionCookie);

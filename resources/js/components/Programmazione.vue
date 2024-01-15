@@ -1,24 +1,14 @@
 <template>
-	<div class="films" v-for="film in films">
-		<div class="wrap" :style="{ 'background': 'linear-gradient(180deg, rgba(0, 0, 0, 0.00) 47.4%, rgba(0, 0, 0, 0.60) 80.21%), url(' + film.img + ')' }">
+	<div class="film" v-for="film in films">
+		<a :href="'/film/'+film.id" class="wrap" :style="{ 'background': 'linear-gradient(180deg, rgba(0, 0, 0, 0.00) 47.4%, rgba(0, 0, 0, 0.60) 80.21%), url(' + film.img + ')' }">
 			<!-- <RouterLink :to="{name: 'FilmDetails', params: { id: film.id }}"><h2>{{ film.titolo }}</h2></RouterLink> -->
-            <a :href="'/film/'+film.id"><h2>{{ film.titolo }}</h2></a>
-		</div>
+            <h2>{{ film.titolo }}</h2>
+        </a>
 	</div>
 </template>
   
   <script>
-	import axios from 'redaxios'
-	import $ from 'jquery'
-	import 'slick-carousel'
-
-    // window.axios = axios;
-    // window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-    // window.axios.defaults.baseURL = "http://fce.test/public";
-
-	// immagine https://services.webtic.it/services/WSC_Webtic.asmx/_getEventImage?idcinema=600&idevento=66
-	// dettagli https://services.webtic.it/services/WSC_Webtic.asmx/_getPerformanceListDetail?idcinema=600&idevento=66
-	
+	import axios from 'redaxios';
 
 	export default {
     data() {
@@ -32,9 +22,6 @@
         fetchEventiId: function () {
             let eventi_arr = [];
             axios.get('https://services.webtic.it/services/WSC_Webtic.asmx/_getEventListDetail?idcinema=600', {
-                // headers: { "Access-Control-Allow-Origin": ["http://fce.test/public", "http://192.168.1.140:5174/"],
-                //             "Access-Control-Allow-Headers": "*",
-                // }
             })
                 .then((res) => {
                 const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
@@ -95,53 +82,6 @@
                     console.log(error);
                 })
             }
-            this.slideContentRec();
-        },
-        slideContentRec: function () {
-            setTimeout(function () {
-                $('.carousel-two').slick({
-                    dots: false,
-                    arrows: false,
-                    infinite: false,
-                    centerMode: false,
-                    variableWidth: false,
-                    slidesToShow: 4.5,
-                    slidesToScroll: 1,
-                    autoplay: false,
-                    autoplaySpeed: 2500,
-                    cssEase: 'cubic-bezier(0.785, 0.135, 0.150, 0.860)',
-                    responsive: [
-                        {
-                        breakpoint: 1280,
-                        settings: {
-                            slidesToShow: 3.5,
-                            slidesToScroll: 1,
-                            infinite: true,
-                            dots: true
-                        }
-                        },
-                        {
-                        breakpoint: 1024,
-                        settings: {
-                            slidesToShow: 2.5,
-                            slidesToScroll: 1,
-                            infinite: true,
-                            dots: true
-                        }
-                        },
-                        {
-                        breakpoint: 600,
-                        settings: {
-                            slidesToShow: 1.5,
-                            slidesToScroll: 1
-                        }
-                        },
-                        // You can unslick at a given breakpoint now by adding:
-                        // settings: "unslick"
-                        // instead of a settings object
-                    ]
-                });
-            });
         },
         xmlToJson: function(xml) {
 			// Create the return object

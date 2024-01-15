@@ -21,9 +21,35 @@
 			</button>
 		</div>
 
-		<p>Prezzo <br>
+		<p>{{ $t('Prezzo') }} <br>
 			<b>{{ Prezzo }}€</b>
 		</p>
+
+		<div id="snacks">
+			<div class="inner">
+
+				<div class="food-footer" :class="{hidden: snackChoose == false ? 'hidden' : '' }">
+					<div class="selezione">
+						<span>{{ $t('Selezionate') }}</span>
+						<div class="data-sel">
+							{{ dataSel.qty }}
+						</div>
+					</div>
+
+					<div class="buttons-submit">
+						<div id="btn-checkout-snack" class="submit flex" @click="saveSessionCookie('checkout')">
+							{{ $t('Prosegui al checkout') }}
+							<i class="cart"></i>
+						</div>
+
+						<div id="btn-film" class="submit flex" @click="saveSessionCookie('film')">
+							{{ $t('Scegli film') }}
+							<i class="film"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -51,6 +77,26 @@
 			foto: '',
 			snackChoose: false,
 			snackChosen: [],
+			checkedGiorno: '',
+			checkedOrario: {
+				ora: '',
+				n_sala: '',
+				sala: '',
+				idsala: '',
+				idPerf: '',
+				idTariffa: ''
+			},
+			checkedBiglietto: {
+				carrello: [],
+				biglietti: [],
+				nBiglietti: 0,
+				recap: [],
+				prezzi: [],
+				totString: '',
+				totale: 0,
+				index: 0,
+				isChecked: false,
+			},
 			foodCat: [],
 			dataSel: {
 				cat: '',
@@ -62,15 +108,23 @@
     methods: {
 		fetchCookiedata: function() {
 			let sessionCookie = localStorage.getItem('sessionCookie') ? JSON.parse(localStorage.getItem('sessionCookie')) : {},
-				snackChosen = sessionCookie.snack.length > 0 ? sessionCookie.snack : [],
-				foodQty = 0;
+				snackChosen = Object.keys(sessionCookie).length > 0 && Array.isArray(sessionCookie.snacksArray) ? sessionCookie.snacksArray : [],
+				foodQty = 0,
+				scelte = [];
 
-			this.recap = sessionCookie.recap;
-			this.snackChosen = snackChosen;
-			this.snackChoose = snackChosen.length > 0 ? true : false;
+			this.recap = sessionCookie.recap ? sessionCookie.recap : '';
 
-			if (snackChosen.length > 0) {
-				$.each(snackChosen,function(){foodQty+=parseInt(this.qty) || 0;});
+			console.log(scelte);
+			snackChosen.map(function(el){
+				if (! Array.isArray(el))
+					scelte.push(el);
+			});
+
+			this.snackChosen = scelte;
+			this.snackChoose = this.snackChosen.length > 0 ? true : false;
+
+			if (this.snackChosen.length > 0) {
+				$.each(this.snackChosen,function(){foodQty+=parseInt(this.qty) || 0;});
 				this.dataSel.qty = foodQty;
 			} else {
 				this.dataSel.qty = 0;
@@ -78,6 +132,28 @@
 			
 			console.log(sessionCookie);
 			this.cookieData = sessionCookie;
+
+			if (Object.keys(this.cookieData).length > 0) {
+				this.checkedGiorno = this.cookieData.giorno ? this.cookieData.giorno : '';
+				this.checkedOrario.ora = this.cookieData.ora ? this.cookieData.ora : '';
+				this.checkedOrario.sala = this.cookieData.sala ? this.cookieData.sala : '';
+				this.checkedOrario.idsala = this.cookieData.idsala ? this.cookieData.idsala : '';
+				this.checkedOrario.idPerf = this.cookieData.idPerf ? this.cookieData.idPerf : '';
+				this.checkedOrario.idTariffa = this.cookieData.idTariffa ? this.cookieData.idTariffa : '';
+				this.checkedBiglietto = this.cookieData.checkedBiglietto ? this.cookieData.checkedBiglietto : {};
+				this.checkedBiglietto.carrello = this.cookieData.carrello ? this.cookieData.carrello : [];
+				this.checkedBiglietto.biglietti = this.cookieData.biglietti ? this.cookieData.biglietti : [];
+				this.checkedBiglietto.nBiglietti = this.cookieData.nBiglietti ? this.cookieData.nBiglietti : 0;
+				this.checkedBiglietto.recap = this.cookieData.recap ? this.cookieData.recap : [];
+				this.checkedBiglietto.posti = this.cookieData.posti ? this.cookieData.posti : [];
+				this.checkedBiglietto.prezzi = this.cookieData.prezzi ? this.cookieData.prezzi : [];
+				this.checkedBiglietto.totString = this.cookieData.totString ? this.cookieData.totString : '';
+				this.checkedBiglietto.totale = this.cookieData.totale ? this.cookieData.totale : 0;
+				this.checkedBiglietto.index = this.cookieData.index ? this.cookieData.index : 0;
+				this.checkedBiglietto.isChecked = this.cookieData.isChecked ? this.cookieData.isChecked : false;
+				this.recap = this.cookieData.recapString ? this.cookieData.recapString : '';
+			}
+			console.log(Object.keys(this.cookieData).length)
 		},
 		dateFormat: function(input_D, format_D) {
 			// input date parsed
@@ -184,86 +260,59 @@
 
 			targetInput.val(minus)
 
-			if (type == '') {
+			let snacks = this.snackChosen.findIndex(function(o){
+				return o.id === targetSlug;
+			})
+			if (snacks !== -1) this.snackChosen.splice(snacks, 1);
 
-				let rrecap = this.checkedBiglietto.recap.findIndex(function(o){
-					return o.id === `${targetSlug}-${targetQty}`;
-				})
-				if (rrecap !== -1) this.checkedBiglietto.recap.splice(rrecap, 1);
-
-				if (minus > 0) {
-					this.checkedBiglietto.recap.push({
-						id: `${targetSlug}-${minus}`,
-						string: `${targetNome} x${minus}`
-					})
-				}
-				
-				this.checkedBiglietto.nBiglietti = this.checkedBiglietto.nBiglietti -1;
-				let index = this.checkedBiglietto.index;
-				
-				let biglietti = this.checkedBiglietto.biglietti.findIndex(function(o){
-					return o.id === `${targetSlug}-${index}`;
-				})
-				if (biglietti !== -1) this.checkedBiglietto.biglietti.splice(biglietti, 1);
-
-				this.checkedBiglietto.index = this.checkedBiglietto.index > 0 ? this.checkedBiglietto.index-1 : 0;
-
-				this.removeItemOnce(this.checkedBiglietto.prezzi, targetPrezzo)
-
-			} else if (type == 'snack') {
-				let snacks = this.snackChosen.findIndex(function(o){
-					return o.id === targetSlug;
-				})
-				if (snacks !== -1) this.snackChosen.splice(snacks, 1);
-
-				let snacksTik = this.checkedBiglietto.biglietti.findIndex(function(o){
-					return o.id === targetSlug;
-				})
-				if (snacksTik !== -1) {
-					this.checkedBiglietto.biglietti.splice(snacksTik, 1);
-				}
-
-				let rrecap = this.checkedBiglietto.recap.findIndex(function(o){
-					return o.id === targetSlug;
-				})
-				if (rrecap !== -1) this.checkedBiglietto.recap.splice(rrecap, 1);
-
-				let prezzo_precedente = (targetPrezzo * targetQty).toString();
-				let prezzo_attuale = (targetPrezzo * minus).toString();
-				this.removeItemOnce(this.checkedBiglietto.prezzi, prezzo_precedente)
-
-				if (minus > 0) {
-					let el = {
-						type: 'snack',
-						id: targetSlug,
-						nome: targetNome,
-						idnodo: id,
-						prezzo: parseFloat(targetPrezzo).toFixed(2).replace('.', ','),
-						prezzoTot: parseFloat(targetPrezzo * minus).toFixed(2).replace('.', ','),
-						qty: minus,
-						qtySnack: parseFloat(targetPrezzo).toFixed(2).replace('.', ',')+'€ x '+minus,
-					};
-
-					this.snackChosen.push(el)
-					this.snackChoose = true
-					this.checkedBiglietto.biglietti.push(el)
-
-					this.checkedBiglietto.recap.push({
-						id: targetSlug,
-						string: `${targetNome} x${minus}`
-					})
-
-					this.checkedBiglietto.prezzi.push(prezzo_attuale);
-				
-				} else {
-					if (this.snackChosen.length === 0)
-						this.snackChoose = false
-				}
-
-				if (targetQty > 0)
-					this.dataSel.qty = this.snackChosen.length > 0 ? this.dataSel.qty -1 : this.snackChosen.length
-
+			let snacksTik = this.checkedBiglietto.carrello.findIndex(function(o){
+				return o.id === targetSlug;
+			})
+			if (snacksTik !== -1) {
+				this.checkedBiglietto.carrello.splice(snacksTik, 1);
 			}
+
+			let rrecap = this.checkedBiglietto.recap.findIndex(function(o){
+				return o.id === targetSlug;
+			})
+			if (rrecap !== -1) this.checkedBiglietto.recap.splice(rrecap, 1);
+
+			let prezzo_precedente = (targetPrezzo * targetQty).toString();
+			let prezzo_attuale = (targetPrezzo * minus).toString();
+			this.removeItemOnce(this.checkedBiglietto.prezzi, prezzo_precedente)
+
+			if (minus > 0) {
+				let el = {
+					type: 'snack',
+					id: targetSlug,
+					nome: targetNome,
+					idnodo: id,
+					prezzo: parseFloat(targetPrezzo).toFixed(2).replace('.', ','),
+					prezzoTot: parseFloat(targetPrezzo * minus).toFixed(2).replace('.', ','),
+					qty: minus,
+					qtySnack: parseFloat(targetPrezzo).toFixed(2).replace('.', ',')+'€ x '+minus,
+				};
+
+				this.snackChosen.push(el)
+				this.snackChoose = true
+				this.checkedBiglietto.carrello.push(el)
+
+				this.checkedBiglietto.recap.push({
+					type: 'snack',
+					id: targetSlug,
+					string: `${targetNome} x${minus}`
+				})
+
+				this.checkedBiglietto.prezzi.push(prezzo_attuale);
+			
+			} else {
+				if (this.snackChosen.length === 0)
+					this.snackChoose = false
+			}
+
+			if (targetQty > 0)
+				this.dataSel.qty = this.snackChosen.length > 0 ? this.dataSel.qty -1 : this.snackChosen.length
+
 
 			if (this.checkedBiglietto.recap.length > 0) {
 				$.each(this.checkedBiglietto.prezzi,function(){tot+=parseFloat(this) || 0;});
@@ -277,8 +326,6 @@
 				this.checkedBiglietto.prezzi = [];
 			}
 
-			console.log(this.checkedBiglietto)
-
 			this.nBiglietti = this.checkedBiglietto.nBiglietti;
 			this.recap = this.checkedBiglietto.recap.map(function(elem){
 				return elem.string;
@@ -289,6 +336,8 @@
 			if(this.checkedGiorno != '' && this.checkedOrario != '' && this.checkedBiglietto.isChecked === true) {
 				this.activeSubmit = true
 			}
+
+			this.saveSessionCookie();
 		},
 		qtyPlus: function(id, type = '') {
 			this.checkedBiglietto.index = this.checkedBiglietto.index+1;
@@ -306,83 +355,50 @@
 			targetQty = parseInt(targetInput.val());
 
 			if (targetQty > 0) {
-				
-				if (type == '') {
 
-					let rrecap = this.checkedBiglietto.recap.findIndex(function(o){
-						return o.id === `${targetSlug}-${targetQty-1}`;
-					})
-					if (rrecap !== -1) this.checkedBiglietto.recap.splice(rrecap, 1);
+				let rrecap = this.checkedBiglietto.recap.findIndex(function(o){
+					return o.id === targetSlug;
+				})
+				if (rrecap !== -1) this.checkedBiglietto.recap.splice(rrecap, 1);
 
-					this.checkedBiglietto.recap.push({
-						id: `${targetSlug}-${targetQty}`,
-						string: `${targetNome} x${targetQty}`
-					})
+				this.checkedBiglietto.recap.push({
+					type: 'snack',
+					id: targetSlug,
+					string: `${targetNome} x${targetQty}`
+				})
 
-					this.checkedBiglietto.prezzi.push(targetPrezzo)
-					
-					let el = {
-						type: 'biglietto',
-						id: `${targetSlug}-${this.checkedBiglietto.index}`,
-						nome: targetNome,
-						prezzo: parseFloat(targetPrezzo).toFixed(2).replace('.', ','),
-						qty: targetQty / targetQty,
-						posto: '',
-					};
+				let biglietti = this.checkedBiglietto.carrello.findIndex(function(o){
+					return o.id === targetSlug;
+				})
+				if (biglietti !== -1) this.checkedBiglietto.carrello.splice(biglietti, 1);
 
-					this.checkedBiglietto.biglietti.push(el)
+				// let snacks = this.snackChosen.findIndex(function(o){
+				// 	return o.id === targetSlug;
+				// })
+				// if (snacks !== -1) this.snackChosen.splice(snacks, 1);
 
-					this.checkedBiglietto.nBiglietti = this.checkedBiglietto.nBiglietti +1;
+				let prezzo_remove = (targetPrezzo * (targetQty-1)).toString();
+				let prezzo_tot = (targetPrezzo * targetQty).toString();
+				this.removeItemOnce(this.checkedBiglietto.prezzi, prezzo_remove);
+				this.checkedBiglietto.prezzi.push(prezzo_tot);
 
-				} else if (type == 'snack') {
+				let el = {
+					type: 'snack',
+					id: targetSlug,
+					nome: targetNome,
+					idnodo: id,
+					prezzo: parseFloat(targetPrezzo).toFixed(2).replace('.', ','),
+					prezzoTot: parseFloat(targetPrezzo * targetQty).toFixed(2).replace('.', ','),
+					qty: targetQty,
+					qtySnack: parseFloat(targetPrezzo).toFixed(2).replace('.', ',')+'€ x '+targetQty,
+				};
 
-					let rrecap = this.checkedBiglietto.recap.findIndex(function(o){
-						return o.id === targetSlug;
-					})
-					if (rrecap !== -1) this.checkedBiglietto.recap.splice(rrecap, 1);
-
-					this.checkedBiglietto.recap.push({
-						id: targetSlug,
-						string: `${targetNome} x${targetQty}`
-					})
-
-					let biglietti = this.checkedBiglietto.biglietti.findIndex(function(o){
-						return o.id === targetSlug;
-					})
-					if (biglietti !== -1) this.checkedBiglietto.biglietti.splice(biglietti, 1);
-
-					// let snacks = this.snackChosen.findIndex(function(o){
-					// 	return o.id === targetSlug;
-					// })
-					// if (snacks !== -1) this.snackChosen.splice(snacks, 1);
-
-					let prezzo_remove = (targetPrezzo * (targetQty-1)).toString();
-					let prezzo_tot = (targetPrezzo * targetQty).toString();
-					this.removeItemOnce(this.checkedBiglietto.prezzi, prezzo_remove);
-					this.checkedBiglietto.prezzi.push(prezzo_tot);
-
-					let el = {
-						type: 'snack',
-						id: targetSlug,
-						nome: targetNome,
-						idnodo: id,
-						prezzo: parseFloat(targetPrezzo).toFixed(2).replace('.', ','),
-						prezzoTot: parseFloat(targetPrezzo * targetQty).toFixed(2).replace('.', ','),
-						qty: targetQty,
-						qtySnack: parseFloat(targetPrezzo).toFixed(2).replace('.', ',')+'€ x '+targetQty,
-					};
-
-					this.snackChosen.push(el)
-					this.snackChoose = true
-					this.dataSel.qty+=1
-					this.checkedBiglietto.biglietti.push(el)
-
-					console.log(this.snackChosen)
-				}
+				this.snackChosen.push(el)
+				this.snackChoose = true
+				this.dataSel.qty+=1
+				this.checkedBiglietto.carrello.push(el)
 			}
 			
-			console.log(this.checkedBiglietto)
-
 			if (this.checkedBiglietto.recap.length > 0) {
 				$.each(this.checkedBiglietto.prezzi,function(){tot+=parseFloat(this) || 0;});
 				this.checkedBiglietto.totString = `Totale: ${parseFloat(tot).toFixed(2).replace('.', ',')}€`;
@@ -404,13 +420,17 @@
 			if(this.checkedGiorno != '' && this.checkedOrario != '' && this.checkedBiglietto.isChecked === true) {
 				this.activeSubmit = true
 			}
+
+			this.saveSessionCookie();
 		},
 		removeItemOnce: function(arr, value) {
-			let index = arr.indexOf(value);
-			if (index > -1) {
-				arr.splice(index, 1);
+			if (arr !== undefined) {
+				let index = arr.indexOf(value);
+				if (index > -1) {
+					arr.splice(index, 1);
+				}
+				return arr;
 			}
-			return arr;
 		},
 		removeItemAll: function(arr, value) {
 			let i = 0;
@@ -456,16 +476,21 @@
 		},
 		foodVal: function(id) {
 			let value = 0;
-			this.snackChosen.findIndex(function(o){
-				if( o.idnodo === id) value = o.qty || 0;
-			});
+			for (let i = 0; i < this.snackChosen.length; i++) {
+				if (this.snackChosen[i].idnodo == id) {
+					value = this.snackChosen[i].qty;
+				}
+			}
 			return value;
 		},
-		saveSessionCookie: function() {
-			let posti = this.checkedBiglietto.biglietti.map(function(elem){
-				return elem.posto;
-			}).join(' | '),
-				snacks = this.checkedBiglietto.biglietti.map(function(elem){
+		saveSessionCookie: function($path) {
+			let sessionSnack = this.snackChosen.map(function(elem){
+					return elem.nome;
+				}).join(' | '),
+				posti = this.checkedBiglietto.carrello.map(function(elem){
+					return elem.posto;
+				}),
+				snacksArray = this.checkedBiglietto.carrello.map(function(elem){
 					return elem.type === 'snack' ? elem : [];
 				});
 
@@ -476,20 +501,23 @@
 				idsala: this.checkedOrario.idsala,
 				idPerf: this.checkedOrario.idPerf,
 				idTariffa: this.checkedOrario.idTariffa,
+				carrello: this.checkedBiglietto.carrello,
 				biglietti: this.checkedBiglietto.biglietti,
-				snack: snacks,
+				snack: sessionSnack,
+				snacksArray: snacksArray,
 				posti: posti,
-				totale: this.checkedBiglietto.totale,
-				nBiglietti: this.checkedBiglietto.nBiglietti,
+				totale: this.totale,
+				nBiglietti: 0,
 				recap: this.checkedBiglietto.recap,
-				checkedBiglietto: this.checkedBiglietto,
+				recapString: this.recapString
 			}
 
 			let sessionCookieStr = JSON.stringify(sessionCookie);
 			localStorage.setItem('sessionCookie', sessionCookieStr);
 
 			console.log(sessionCookie);
-			location.href = `${this.appUrl}checkout`;
+			if ($path !== undefined)
+				location.href = `${this.appUrl}${$path}`;
 		},
 		xmlToJson: function(xml) {
 			// Create the return object

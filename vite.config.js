@@ -33,7 +33,13 @@ export default defineConfig({
             input: ['resources/styles/app/app.scss', 'resources/js/app.js'],
             refresh: true,
         }),
-        i18n()
+        i18n({
+            // you can also change your langPath here
+            // langPath: 'locales' 
+            additionalLangPaths: [
+                'public/locales' // Load translations from this path too! 
+            ]
+        }),
     ],
     resolve: {
         alias: {

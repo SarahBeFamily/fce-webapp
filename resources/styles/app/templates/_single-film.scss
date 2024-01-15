@@ -82,6 +82,10 @@
 		}
 	}
 
+	.cast-wrap {
+		margin-bottom: 25px;
+	}
+
 	.carousel-cast {
 		.slick-track {
 			padding-left: 50px !important;
@@ -96,9 +100,17 @@
 				height: 110px;
 				border-radius: 10px;
 				margin-bottom: 10px;
+				background-color: #d1d1d1;
+				display: flex;
+				justify-content: center;
+				align-items: flex-end;
 
 				&.placeholder {
 					background-image: url(../../../images/placeholder-person.jpg);
+				}
+
+				.cast-img {
+					width: 100px;
 				}
 			}
 
@@ -577,7 +589,7 @@
 				display: block;
 				margin: 4px 3.2px;
 				appearance: none;
-				padding: 14px 0;
+				padding: 14px;
 
 				&:checked {
 					background: white;
