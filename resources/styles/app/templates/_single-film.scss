@@ -590,6 +590,7 @@
 				margin: 4px 3.2px;
 				appearance: none;
 				padding: 14px;
+				cursor: pointer;
 
 				&:checked {
 					background: white;
@@ -600,8 +601,10 @@
 				}
 
 				&.riservato {
-					background-color: #A31722;
 					border-color: #A31722 !important;
+					background: #A31722;
+					pointer-events: none;
+					cursor: auto !important;
 				}
 			}
 

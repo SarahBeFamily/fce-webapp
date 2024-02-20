@@ -70,21 +70,24 @@
 </template>
 
 <script>
-	let idCinema = 600;
-
 	import axios from 'redaxios'
 	import $ from 'jquery'
 	import 'slick-carousel'
+	import { v4 as uuidv4 } from "uuid"
+
+	const sessionID = uuidv4().replace(/-/g, '');
 
 	import.meta.glob(['../../images/**',]);
 
 	export default {
-		props: ['route', 'path'],
+		props: ['cinema', 'path'],
     data() {
         return {
 			appUrl: this.path,
-			// id: this.route,
-			idCinema: idCinema,
+			WebtikBase: import.meta.env.VITE_WEBTIK_SERVICE_BASE,
+			apiFood: import.meta.env.VITE_API_FOOD,
+			idCinema: this.cinema,
+			sessionID: sessionID,
 			activeTab: {
 				dataTab: 'info',
 				active: true
@@ -155,6 +158,7 @@
 			this.cookieData = sessionCookie;
 
 			if (Object.keys(this.cookieData).length > 0) {
+				this.sessionID = this.cookieData.sessionCookieID ? this.cookieData.sessionCookieID : sessionID;
 				this.checkedGiorno = this.cookieData.giorno ? this.cookieData.giorno : '';
 				this.checkedOrario.ora = this.cookieData.ora ? this.cookieData.ora : '';
 				this.checkedOrario.sala = this.cookieData.sala ? this.cookieData.sala : '';
@@ -178,7 +182,8 @@
 			console.log(Object.keys(this.cookieData).length)
 		},
 		fetchFood: function() {
-			axios.post(`http://fce.winticstellar.com/evolution/webapi/api/getArticoliNegozio`,
+			console.log(this.apiFood)
+			axios.post(this.apiFood,
 			{
 				"idnegozio": "600",
 				"web_box": "demo",
@@ -472,6 +477,7 @@
 				});
 
 			let sessionCookie = {
+				sessionCookieID: this.cookieData.sessionCookieID ? this.cookieData.sessionCookieID : sessionID,
 				giorno: this.checkedGiorno,
 				ora: this.checkedOrario.ora,
 				sala: this.checkedOrario.sala,
@@ -493,7 +499,7 @@
 			localStorage.setItem('sessionCookie', sessionCookieStr);
 
 			console.log(sessionCookie);
-			location.href = `${this.appUrl}${$path}`;
+			location.href = `${this.appUrl}${this.idCinema}/${$path}`;
 		},
 		xmlToJson: function(xml) {
 			// Create the return object

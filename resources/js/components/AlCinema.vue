@@ -1,8 +1,7 @@
 <template>
 	<div class="films" v-for="film in films">
 		<div class="wrap" :style="{ 'background': 'linear-gradient(180deg, rgba(0, 0, 0, 0.00) 47.4%, rgba(0, 0, 0, 0.60) 80.21%), url(' + film.img + ')' }">
-			<!-- <RouterLink :to="{name: 'FilmDetails', params: { id: film.id }}"><h2>{{ film.titolo }}</h2></RouterLink> -->
-            <a :href="'/film/'+film.id"><h2>{{ film.titolo }}</h2></a>
+            <a :href="idCinema+'/film/'+film.id"><h2>{{ film.titolo }}</h2></a>
 		</div>
 	</div>
 </template>
@@ -12,17 +11,17 @@
 	import $ from 'jquery'
 	import 'slick-carousel'
 
-    // window.axios = axios;
-    // window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-    // window.axios.defaults.baseURL = "http://fce.test/public";
-
 	// immagine https://services.webtic.it/services/WSC_Webtic.asmx/_getEventImage?idcinema=600&idevento=66
 	// dettagli https://services.webtic.it/services/WSC_Webtic.asmx/_getPerformanceListDetail?idcinema=600&idevento=66
-	
+	let idCinema = localStorage.getItem('idCinema') || 600;
 
 	export default {
+        props: ['route', 'path'],
     data() {
         return {
+            appUrl: this.path,
+			idCinema: idCinema,
+            WebtikBase: import.meta.env.VITE_WEBTIK_SERVICE_BASE,
             eventiID: [],
             films: [],
             sala: [],
@@ -30,12 +29,11 @@
     },
     methods: {
         fetchEventiId: function () {
+            console.log(this.idCinema);
+            console.log(this.WebtikBase);
+            
             let eventi_arr = [];
-            axios.get('https://services.webtic.it/services/WSC_Webtic.asmx/_getEventListDetail?idcinema=600', {
-                // headers: { "Access-Control-Allow-Origin": ["http://fce.test/public", "http://192.168.1.140:5174/"],
-                //             "Access-Control-Allow-Headers": "*",
-                // }
-            })
+            axios.get(`${this.WebtikBase}_getEventListDetail?idcinema=${this.idCinema}`)
                 .then((res) => {
                 const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
                     jsonData = this.xmlToJson(XmlNode);
@@ -81,11 +79,7 @@
             let Eventi = this.films;
             for (let i = 0; i < Eventi.length; i++) {
                 let id = Eventi[i].id;
-                axios.get(`https://services.webtic.it/services/WSC_Webtic.asmx/_getEventImage?idcinema=600&idevento=${id}`, {
-                    // headers: { "Access-Control-Allow-Origin": ["http://fce.test/public", "http://192.168.1.140:5174/"],
-                    //             "Access-Control-Allow-Headers": "*",
-                    // }
-                })
+                axios.get(`${this.WebtikBase}_getEventImage?idcinema=${this.idCinema}&idevento=${id}`)
                     .then((res) => {
                     const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
                         jsonData = this.xmlToJson(XmlNode);
@@ -107,6 +101,8 @@
                     variableWidth: false,
                     slidesToShow: 4.5,
                     slidesToScroll: 1,
+                    rows: 1,
+                    swipeToSlide: true,
                     autoplay: false,
                     autoplaySpeed: 2500,
                     cssEase: 'cubic-bezier(0.785, 0.135, 0.150, 0.860)',

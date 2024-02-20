@@ -1,6 +1,6 @@
 <template>
 	<div class="single-movie">
-		<div class="foto" 
+		<div class="foto"
 			:class="{small: activeTab.dataTab != 'info' ? 'small' : ''}"
 			:style="{ 'background': 'linear-gradient(180deg, rgba(16, 16, 16, 0.00) 0%, #080808 86.46%), url(' + dettagli.locandina + ')' }">
 			<h1 class="title" v-if="!isCheckout">{{ dettagli.titolo }}</h1>
@@ -79,13 +79,13 @@
 							<button @click.prevent="qtyMinus(tar.id)">
 								<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M2 10H18" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-								</svg> 
+								</svg>
 							</button>
 							<input type="number" :name="'qty-'+tar.id" :data-prezzo="tar.prezzo" :data-nome="tar.nome" :id="'qty-'+tar.id" min="0" :value="tar.qty">
 							<button @click.prevent="qtyPlus(tar.id)">
 								<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M2 10H18M10 18V2" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-								</svg> 
+								</svg>
 							</button>
 						</div>
 					</div>
@@ -96,11 +96,11 @@
 						<i class="arrow-right"></i>
 					</div>
 
-					<div class="recap">
+					<div class="recap" v-if="recap !== ''">
 						{{ recap }}
 					</div>
 				</div>
-			
+
 			</div>
 
 			<div id="private" class="cont hidden">
@@ -123,7 +123,7 @@
 							</label>
 						</div>
 
-						<div id="btn-acquista" class="submit flex" :class="{inactive: activeSubmitCheckout == false ? 'inactive' : '' }" @click="activeSubmit == true ? saveSessionCookie() : null">
+						<div id="btn-acquista" class="submit flex" :class="{inactive: activeSubmitPrivate == false ? 'inactive' : '' }" @click="activeSubmitPrivate == true ? privateScreening() : null">
 							{{ $t('Prenota questa sala') }}
 							<i class="cart"></i>
 						</div>
@@ -136,22 +136,22 @@
 
 				<div><img alt="schermo" class="schermo" src="../../images/schermo.png" width="" height="" /></div>
 
-				<div class="structure-sala" 
-					:class="(checkedOrario.sala).toLocaleLowerCase().replaceAll(' ', '_')" 
-					:data-file="fileSala(checkedOrario.sala)" 
+				<div class="structure-sala"
+					:class="(checkedOrario.sala).toLocaleLowerCase().replaceAll(' ', '_')"
+					:data-file="fileSala(checkedOrario.sala)"
 					:data-colonne="colonneSala(checkedOrario.sala)"
 				>
-					<div class="posto posto-wrap" 
-						:class="(posto.idposto).replace('/', '-')" 
+					<div class="posto posto-wrap"
+						:class="(posto.idposto).replace('/', '-')"
 						v-for="posto in postiSala"
 					>
 						<i v-if="(posto.idposto).includes('HX')"></i>
-						<input type="checkbox" class="posto" 
+						<input type="checkbox" class="posto"
 							v-model="posto.checked"
-							:class="(posto.idposto).replace('/', '-')" 
-							:data-posto="posto.idposto" 
-							:data-fila="posto.fila" 
-							:data-colonna="posto.colonna" 
+							:class="(posto.idposto).replace('/', '-') + ' ' + (posto.bloccato == true ? 'riservato' : '') "
+							:data-posto="posto.idposto"
+							:data-fila="posto.fila"
+							:data-colonna="posto.colonna"
 							@change="scegliPosto($event, posto.idposto)"
 						/>
 					</div>
@@ -175,7 +175,7 @@
 				</div>
 
 				<div id="btn-checkout" class="submit flex" :class="{inactive: activeSubmitCheckout == false ? 'inactive' : '' }" @click="activeSubmitCheckout == true ? tabChange('checkout') : null">
-					{{ $t('Prosegui al checkout') }}
+					{{ $t('Avanti') }}
 					<i class="cart"></i>
 				</div>
 
@@ -192,10 +192,10 @@
 
 					<div class="info-film">
 						<h1>{{ dettagli.titolo }}</h1>
-						<p><span>Anno:</span> {{ dettagli.anno }}</p>
-						<p><span>Genere:</span> {{ dettagli.genere }}</p>
-						<p><span>Durata:</span> {{ dettagli.durata }}</p>
-						<p><span>Lingua:</span> Italiano</p>
+						<p><span>{{ $t('Anno') }}:</span> {{ dettagli.anno }}</p>
+						<p><span>{{ $t('Genere') }}:</span> {{ dettagli.genere }}</p>
+						<p><span>{{ $t('Durata') }}:</span> {{ dettagli.durata }}</p>
+						<p><span>{{ $t('Lingua') }}:</span> Italiano</p>
 					</div>
 				</div>
 
@@ -245,7 +245,7 @@
 				</div>
 
 				<!-- <div class="btn-snack">
-					<label>Qualche snack? 
+					<label>Qualche snack?
 						<svg width="18" height="18" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" @click.prevent="showInfo('apri')">
 							<path d="M11 15.084L11 10.084M11 1.08398C5.5 1.08398 1 5.58398 1 11.084C1 16.584 5.5 21.084 11 21.084C16.5 21.084 21 16.584 21 11.084C21 5.58398 16.5 1.08398 11 1.08398Z" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 							<path d="M11 7.08398H10.991" stroke="white" stroke-opacity="0.9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -260,7 +260,7 @@
 							<h3>Prenotazione snack</h3>
 							<p>
 								Prenotando in anticipo gli snack e le bevande che ti accompagneranno durante la visione del tuo film eviterai la coda prima che apra la sala grazie ad una cassa dedicata...
-								Fidati, il bar si riempe sempre prima dell’inizio di un film ;) 
+								Fidati, il bar si riempe sempre prima dell’inizio di un film ;)
 							</p>
 						</div>
 						<div class="close" @click.prevent="showInfo('chiudi')">Ok</div>
@@ -294,25 +294,25 @@
 								</div>
 							</div>
 
-							<div class="type-tar" 
+							<div class="type-tar"
 								v-for="articolo in cat.Nodi"
 								:id="articolo.idarticolo"
 								:id-nodopadre="articolo.idnodoPadre"
 							>
 								<div class="foto-food" :style="{'background-image': 'url(http://fce.winticstellar.com/evolution/webapi/Handlers/handlerArticoli.ashx?idnegozio='+idCinema+'&idarticolo='+articolo.idarticolo+'&LOB_SIZE=SMALL&t=20230707084628)'}"></div>
 								<p class="nome">{{ articolo.articolo.nome.indexOf('Ingredienti:') > -1 ? articolo.articolo.nome.slice(0, articolo.articolo.nome.indexOf('Ingredienti:')) : articolo.articolo.nome }}</p>
-								
+
 								<div class="quantity">
 									<button @click.prevent="qtyMinus(articolo.idarticolo, 'snack')">
 										<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 											<path d="M2 10H18" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-										</svg> 
+										</svg>
 									</button>
 									<input type="number" :name="'qty-'+articolo.idarticolo" :data-prezzo="articolo.articolo.importo" :data-nome="articolo.articolo.nome" :id="'qty-'+articolo.idarticolo" min="0" value="0">
 									<button @click.prevent="qtyPlus(articolo.idarticolo, 'snack')">
 										<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 											<path d="M2 10H18M10 18V2" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-										</svg> 
+										</svg>
 									</button>
 								</div>
 							</div>
@@ -326,7 +326,7 @@
 				</div>
 
 				<div id="btn-acquista" class="submit flex" :class="{inactive: activeSubmitCheckout == false ? 'inactive' : '' }" @click="activeSubmitCheckout == true ? saveSessionCookie() : null">
-					{{ $t('Acquista i biglietti') }}
+					{{ $t('Prosegui al checkout') }}
 					<i class="cart"></i>
 				</div>
 
@@ -340,23 +340,30 @@
 
 <script>
 	// Wiki API
-	let WikiBase = 'https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&list=&titles=',
-		WebtikBase = 'https://services.webtic.it/services/WSC_Webtic.asmx/',
-		idCinema = 600;
+	let WikiBase = 'https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&list=&titles=';
 
 	import axios from 'redaxios'
 	import $ from 'jquery'
 	import 'slick-carousel'
+	import { v4 as uuidv4 } from "uuid"
+
+	const sessionID = uuidv4().replace(/-/g, '');
 
 	import.meta.glob(['../../images/**',]);
 
 	export default {
-		props: ['route', 'path'],
+		props: ['route', 'cinema', 'path', 'carrello'],
     data() {
         return {
 			appUrl: this.path,
 			id: this.route,
-			idCinema: idCinema,
+			WebtikBase: import.meta.env.VITE_WEBTIK_SERVICE_BASE,
+			apiFood: import.meta.env.VITE_API_FOOD,
+			WebtikHandler: import.meta.env.VITE_WEBTIK_HANDLE_ARTICOLI,
+			idCinema: this.cinema,
+			sessionID: sessionID,
+			cart: '', //(this.carrello).replace('&quot;', '"'),
+			spettacolo: '',
 			activeTab: {
 				dataTab: 'info',
 				active: true
@@ -392,12 +399,14 @@
 				isChecked: false,
 			},
 			activeSubmit: false,
+			activeSubmitPrivate: false,
 			Sala: {
 				sala: '',
 				file: '',
 				colonne: ''
 			},
 			postiSala: [],
+			postiOccupati: [],
 			postiScelti: [],
 			postiChecked: {
 				posti: [],
@@ -422,7 +431,7 @@
     },
     methods: {
         fetchEvento: function () {
-            axios.get(`${WebtikBase}_getPerformanceListDetail?idcinema=${idCinema}&idevento=${this.id}`)
+            axios.get(`${this.WebtikBase}_getPerformanceListDetail?idcinema=${this.idCinema}&idevento=${this.id}`)
                 .then((res) => {
 				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
 					jsonData = this.xmlToJson(XmlNode),
@@ -435,6 +444,8 @@
 				let durata_arr = durata.split(':'),
 					cast_array = attori.split(','),
 					genere_arr = genere.split(',');
+
+					console.log(performances)
 
 				this.dettagli = {
 					titolo: evento.titolo,
@@ -480,10 +491,10 @@
 							this.checkedGiorno = Object.keys(this.cookieData).length > 0 && this.cookieData.giorno && this.spettacolo == this.id ? this.cookieData.giorno : giorno;
 						}
 
-						console.log(this.checkedGiorno)
+						// console.log(this.checkedGiorno)
 
 						if (gg != giorno) {
-							
+
 							progr_array.push({
 								giorno: giorno,
 								g_front: g,
@@ -523,7 +534,7 @@
 					this.checkedGiorno = Object.keys(this.cookieData).length > 0 && this.cookieData.giorno ? this.cookieData.giorno : giorno;
 
 					if (gg != giorno) {
-						
+
 						progr_array.push({
 							giorno: giorno,
 							g_front: g,
@@ -556,10 +567,10 @@
 				this.addFotoCast();
 				this.slideContentRec();
 				this.addOrari(this.checkedGiorno);
-            });
+			});
         },
         addImage: function () {
-			axios.get(`https://services.webtic.it/services/WSC_Webtic.asmx/_getEventImage?idcinema=${idCinema}&idevento=${this.id}`)
+			axios.get(`${this.WebtikBase}_getEventImage?idcinema=${this.idCinema}&idevento=${this.id}`)
 				.then((res) => {
 				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
 					jsonData = this.xmlToJson(XmlNode);
@@ -585,7 +596,7 @@
         },
 		choosePerformance: function(idPerf, idTariffa, ora, idsala, nomesala) {
 			// Prezzi per performance
-			axios.get(`${WebtikBase}_getPriceListFull?idcinema=${idCinema}&idPerformance=${idPerf}&idTariffa=${idTariffa}&mode=3`)
+			axios.get(`${this.WebtikBase}_getPriceListFull?idcinema=${this.idCinema}&idPerformance=${idPerf}&idTariffa=${idTariffa}&mode=3`)
                 .then((res) => {
 					const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
 						jsonData = this.xmlToJson(XmlNode),
@@ -594,7 +605,7 @@
 
 					for (let i = 0; i < details.length; i++) {
 						const prezzo = details[i];
-						
+
 						// let cookieqty = 0;
 						// for (let i = 0; i < this.checkedBiglietto.biglietti.length; i++) {
 						// 	const biglietto = this.checkedBiglietto.biglietti[i];
@@ -605,7 +616,7 @@
 
 						let cookieqty = 0;
 						this.checkedBiglietto.carrello.map((el_cart) => {
-							if (el_cart.type === 'biglietto' && el_cart.tariffa == prezzo.idbiglietto && this.spettacolo == this.id) {
+							if (el_cart.type === 'biglietto' && el_cart.tariffa == prezzo.idbiglietto && (this.spettacolo == this.id || this.spettacolo == '')) {
 								cookieqty += el_cart.qty;
 							}
 						})
@@ -626,6 +637,13 @@
 				this.checkedOrario.idsala = idsala;
 				this.checkedOrario.idPerf = idPerf;
 				this.checkedOrario.idTariffa = idTariffa;
+
+				// Se private screening
+				// Controlla se c'è almeno un posto occupato
+				// Se non ci sono posti occupati, mostra il form per la prenotazione
+				if ($('.tab li.active').attr('data-tab') == 'private') {
+					this.getPostiSala('private');
+				}
 			});
 		},
 		addOrari: function(daySel) {
@@ -682,9 +700,9 @@
 			const Mesi = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
 			//to replace month
-			// format_D = format_D.replace("M", month.toString().padStart(2,"0")); 
-			format_D = format_D.replace("M", Mesi[month -1]); 
-			// console.log(Mesi[month -1]);      
+			// format_D = format_D.replace("M", month.toString().padStart(2,"0"));
+			format_D = format_D.replace("M", Mesi[month -1]);
+			// console.log(Mesi[month -1]);
 
 			// to replace year
 			if (format_D.indexOf("yyyy") > -1) {
@@ -709,7 +727,7 @@
 				.replaceAll('&#200;', 'È')
 				.replaceAll('&#201;', 'É')
 				.replaceAll('&quot;', '"')
-			
+
 			return cleanStr;
 		},
 		slideContentRec: function () {
@@ -759,16 +777,46 @@
             });
         },
 		tabChange: function(data) {
-			$(`.tab .cont#${data}`).removeClass('hidden');
-			$(`.tab .cont:not(#${data})`).addClass('hidden');
+			
 
 			if (data == 'checkout') {
+				let test = [{
+					id: 'intero-1',
+					tariffa: '1',
+					prodotto: 'Intero Posto 1/A',
+					prezzo: '8,00',
+					qty: 1,
+					type: 'biglietto',
+					show: this.dettagli.titolo,
+					cinema: this.idCinema,
+					date: `${this.checkedGiorno} ${this.checkedOrario.ora}`,
+					hall: this.checkedOrario.sala,
+					currency: 'eur',
+				},
+				{
+					id: 'intero-2',
+					tariffa: '1',
+					prodotto: 'Intero Posto 1/B',
+					prezzo: '8,00',
+					qty: 1,
+					type: 'biglietto',
+					show: this.dettagli.titolo,
+					cinema: this.idCinema,
+					date: `${this.checkedGiorno} ${this.checkedOrario.ora}`,
+					hall: this.checkedOrario.sala,
+					currency: 'eur',
+				}];
+				this.addToCart(sessionID, JSON.stringify(test), data);
 				this.isCheckout = true;
 			} else {
+				$(`.tab .cont#${data}`).removeClass('hidden');
+				$(`.tab .cont:not(#${data})`).addClass('hidden');
+
 				this.isCheckout = false;
+				this.activeTab.dataTab = data;
 			}
 
-			this.activeTab.dataTab = data;
+			// this.activeTab.dataTab = data;
 		},
 		qtyMinus: function(id, type = '') {
 			const targetInput = $(`#qty-${id}`),
@@ -777,7 +825,7 @@
 				targetPrezzo = targetInput.attr('data-prezzo');
 
 			let tot = 0;
-			
+
 			if (type == '') {
 
 				let targetQty = 0;
@@ -808,7 +856,7 @@
 						qty: minus,
 					})
 				}
-				
+
 				this.checkedBiglietto.nBiglietti = this.checkedBiglietto.nBiglietti > 0 ? this.checkedBiglietto.nBiglietti -1 : 0;
 				let index = this.checkedBiglietto.index;
 
@@ -824,24 +872,6 @@
 					const el = this.prezzi[i];
 					if (el.id === id) {
 						el.qty = el.qty > 0 ? el.qty-1 : 0;
-
-						// // elimino il biglietto con lo stesso id
-						// let tikrecap = this.checkedBiglietto.biglietti.findIndex(function(o){
-						// 	return o.id === id;
-						// })
-						// if (tikrecap !== -1) this.checkedBiglietto.biglietti.splice(tikrecap, 1);
-
-						// // aggiungo il biglietto con lo stesso id variando di 1 la qty
-						// this.checkedBiglietto.biglietti.push({
-						// 	type: 'biglietto',
-						// 	index: this.checkedBiglietto.index,
-						// 	tariffa: id,
-						// 	id: el.id,
-						// 	nome: el.nome,
-						// 	prezzo: el.prezzo,
-						// 	qty: el.qty,
-						// 	posto: '',
-						// })
 					}
 				}
 
@@ -884,6 +914,7 @@
 						type: 'snack',
 						id: targetSlug,
 						nome: targetNome,
+						prodotto: targetNome,
 						idnodo: id,
 						prezzo: parseFloat(targetPrezzo).toFixed(2).replace('.', ','),
 						prezzoTot: parseFloat(targetPrezzo * minus).toFixed(2).replace('.', ','),
@@ -903,7 +934,7 @@
 					})
 
 					this.checkedBiglietto.prezzi.push(parseFloat(prezzo_attuale).toFixed(2).replace('.', ','));
-				
+
 				} else {
 					if (this.snackChosen.length === 0)
 						this.snackChoose = false
@@ -946,7 +977,7 @@
 				targetNome = targetInput.attr('data-nome').indexOf('Ingredienti:') > -1 ? targetInput.attr('data-nome').slice(0, targetInput.attr('data-nome').indexOf('Ingredienti:')) : targetInput.attr('data-nome'),
 				targetSlug = targetNome.replaceAll(' ', '-').toLowerCase(),
 				targetPrezzo = targetInput.attr('data-prezzo');
-			
+
 			let targetQty = 0;
 			// aggiungo 1 alla qty dell'input di tariffa
 			for (let i = 0; i < this.prezzi.length; i++) {
@@ -976,7 +1007,7 @@
 					})
 
 					this.checkedBiglietto.prezzi.push(parseFloat(targetPrezzo).toFixed(2).replace('.', ','));
-					
+
 					let el = {
 						type: 'biglietto',
 						index: this.checkedBiglietto.index,
@@ -996,23 +1027,6 @@
 						const el = this.prezzi[i];
 						if (el.id === id) {
 							el.qty = el.qty+1;
-
-							// // elimino il biglietto con lo stesso id
-							// let tikrecap = this.checkedBiglietto.biglietti.findIndex(function(o){
-							// 	return o.id === id;
-							// })
-							// if (tikrecap !== -1) this.checkedBiglietto.biglietti.splice(tikrecap, 1);
-
-							// // aggiungo il biglietto con lo stesso id variando di 1 la qty
-							// this.checkedBiglietto.biglietti.push({
-							// 	type: 'biglietto',
-							// 	index: this.checkedBiglietto.index,
-							// 	tariffa: el.id,
-							// 	id: `${targetSlug}-${this.checkedBiglietto.index}`,
-							// 	nome: el.nome,
-							// 	prezzo: el.prezzo,
-							// 	qty: el.qty,
-							// })
 						}
 					}
 
@@ -1047,6 +1061,7 @@
 						type: 'snack',
 						id: targetSlug,
 						nome: targetNome,
+						prodotto: targetNome,
 						idnodo: id,
 						prezzo: parseFloat(targetPrezzo).toFixed(2).replace('.', ','),
 						prezzoTot: parseFloat(targetPrezzo * targetQty).toFixed(2).replace('.', ','),
@@ -1073,7 +1088,7 @@
 				this.checkedBiglietto.isChecked = false;
 				this.checkedBiglietto.totale = 0;
 			}
-			 
+
 			this.nBiglietti = this.checkedBiglietto.nBiglietti;
 			this.recap = this.checkedBiglietto.recap.map(function(elem){
 				return elem.string;
@@ -1106,35 +1121,68 @@
 			}
 			return arr;
 		},
-		getPostiSala: function() {
-			axios.get(`${WebtikBase}_getMappaSale?idcinema=${idCinema}&idsala=${this.checkedOrario.idsala}`)
+		getPostiSala: function($path) {
+			// se il path non è private screening cambio tab alla scelta dei posti
+			if ($path != 'private') {
+				axios.get(`${this.WebtikBase}_getMappaSale?idcinema=${this.idCinema}&idsala=${this.checkedOrario.idsala}`)
+					.then((res) => {
+						let xmldata = res.data;
+						let XmlNode = new DOMParser().parseFromString(xmldata, 'text/xml');
+						let jsonData = this.xmlToJson(XmlNode);
+
+						this.postiSala = jsonData.Sala.posti.posto;
+
+						for (let i = 0; i < this.postiSala.length; i++) {
+							const posto = this.postiSala[i];
+							this.postiSala[i].bloccato = false;
+							this.postiSala[i].checked = Object.keys(this.cookieData).length > 0 && this.cookieData.spettacolo === this.id && this.cookieData.posti.includes(posto.idposto) ? true : false;
+						}
+
+						this.getPostiOccupati($path);
+				});
+			} else {
+				this.getPostiOccupati($path);
+			}
+		},
+		getPostiOccupati: function($path) {
+			// To Do: posti occupati
+			axios.get(`${this.WebtikBase}_getOccupancy?idcinema=${this.idCinema}&idperformance=${this.checkedOrario.idPerf}`)
                 .then((res) => {
 					let xmldata = res.data;
 					let XmlNode = new DOMParser().parseFromString(xmldata, 'text/xml');
 					let jsonData = this.xmlToJson(XmlNode);
-					
-					console.log(jsonData);
-					
-					this.postiSala = jsonData.Sala.posti.posto;
+					let postiOccupati = jsonData.OccupancySala.posti;
 
-					for (let i = 0; i < this.postiSala.length; i++) {
-						const posto = this.postiSala[i];
-						this.postiSala[i].checked = Object.keys(this.cookieData).length > 0 && this.cookieData.spettacolo === this.id && this.cookieData.posti.includes(posto.idposto) ? true : false;
+					console.log(jsonData);
+
+					this.postiOccupati = postiOccupati;
+					console.log(this.postiOccupati)
+
+					// Controllo se il posto è bloccato dallo stesso utente
+					for (let i = 0; i < this.postiOccupati.length; i++) {
+						const postoID = this.postiOccupati.posto.idposto;
+						console.log(postoID)
+
+						if (!this.postiScelti.map((el) => {return el.postoid}).includes(postoID)) {
+							console.log('non cè')
+
+							this.postiSala.map((postoSala) => {
+								if (postoSala.idposto === postoID) {
+									postoSala.bloccato = true;
+								}
+							});
+						}
 					}
+
 					console.log(this.postiSala);
 
-				this.tabChange('posti');
-            });
+					// Controlla se c'è almeno un posto occupato
+					// Se non ci sono posti occupati, attiva il bottone per la prenotazione della sala
+					if (this.postiOccupati.length === 0 && $path == 'private') {
+						this.activeSubmitPrivate = true;
+					}
 
-			// To Do: posti occupati
-			axios.get(`${WebtikBase}_getOccupancy?idcinema=${idCinema}&idperformance=${this.checkedOrario.idPerf}`)
-                .then((res) => {
-					let xmldata = res.data;
-					let XmlNode = new DOMParser().parseFromString(xmldata, 'text/xml');
-					let jsonData = this.xmlToJson(XmlNode);
-					
-					// console.log(jsonData);
-					
+					if ($path != 'private') this.tabChange('posti');
             });
 		},
 		fileSala: function(sala) {
@@ -1143,7 +1191,7 @@
 				case '2':
 					file = '3';
 					break;
-			
+
 				default:
 					break;
 			}
@@ -1155,7 +1203,7 @@
 				case '2':
 					colonne = '9';
 					break;
-			
+
 				default:
 					break;
 			}
@@ -1164,25 +1212,33 @@
 		},
 		/**
 		 * Scelta dei posti nella piantina della sala
-		 * @param {*} $event 
+		 * @param {*} $event
 		 * @param {int} id // id del posto
 		 */
-		scegliPosto: function($event, id) {			
+		scegliPosto: function($event, id) {
 			if (this.postiScelti > 0 && this.checkedBiglietto.spettacolo == this.id) {
 				this.postiScelti.push(this.checkedBiglietto.posti);
 			}
 
 			console.log(this.postiScelti)
 
-			if (!this.postiScelti.includes(id)) {
+			if (!this.postiScelti.map((el) => {return el.postoid}).includes(id)) {
 				if(this.postiScelti.length < parseInt(this.nBiglietti)) {
-					this.postiScelti.push(id);
+					let posto = {
+						postoid: id,
+						giorno: this.checkedGiorno,
+						sala: this.checkedOrario.idsala,
+						ora: this.checkedOrario.ora,
+					}
+
+					this.postiScelti.push(posto);
 				} else {
 					alert("Hai già selezionato tutti i posti disponibili");
 					$event.target.checked = false;
 				}
 			} else {
-				this.postiScelti.splice(this.postiScelti.indexOf(id), 1);
+				// this.postiScelti.splice(this.postiScelti.indexOf(id), 1);
+				this.postiScelti = this.postiScelti.filter((el) => {return el.postoid != id});
 			}
 
 			// Assegno il posto al biglietto
@@ -1195,13 +1251,14 @@
 					if (!Array.isArray(element) && element.type == 'biglietto' && element.posto == '') {
 
 						for (let i = (element.index-1); i < this.postiScelti.length; i++) {
-							const postoID = this.postiScelti[i],
+							const postoID = this.postiScelti[i].postoid,
 								posto_arr = postoID.split('/'),
 								fila = posto_arr[0],
 								posto = posto_arr[1];
-							
+
 							if (assegnato === false) {
 								element.posto = `Fila ${fila} Posto ${posto}`;
+								element.prodotto = `${element.nome} ${element.posto}`;
 								assegnato = true;
 							}
 						}
@@ -1215,8 +1272,14 @@
 				this.activeSubmitCheckout = false;
 			}
 		},
+		privateScreening: function() {
+			// to do: private screening
+			// Aggiungo ai posti scelti tutti quelli disponibili per la sala
+			// Aggiungo al carrello la sala intera con il totale dei biglietti
+			// Aggiungo al recap la sala intera con il totale dei biglietti
+		},
 		fetchFood: function() {
-			axios.post(`http://fce.winticstellar.com/evolution/webapi/api/getArticoliNegozio`,
+			axios.post(this.apiFood,
 			{
 				"idnegozio": "600",
 				"web_box": "demo",
@@ -1224,8 +1287,7 @@
 				"sessionId": "azttmxtdaa_100",
 				"trackid": "2200"
 			})
-			.then((res) => {this.foodCat = res.data.TastieraArticoli.Nodi;}
-			);
+			.then((res) => {this.foodCat = res.data.TastieraArticoli.Nodi;});
 		},
 		fetchCookiedata: function() {
 			let sessionCookie = localStorage.getItem('sessionCookie') ? JSON.parse(localStorage.getItem('sessionCookie')) : {},
@@ -1233,7 +1295,8 @@
 				foodQty = 0,
 				scelte = [];
 
-			this.recap = sessionCookie.recap ? sessionCookie.recap : '';
+			if (sessionCookie.recap)
+				this.recap = sessionCookie.recap;
 
 			console.log(scelte);
 			snackChosen.map(function(el){
@@ -1250,11 +1313,12 @@
 			} else {
 				this.dataSel.qty = 0;
 			}
-			
+
 			console.log(sessionCookie);
 			this.cookieData = sessionCookie;
-			
+
 			if (Object.keys(this.cookieData).length > 0) {
+				this.sessionID = this.cookieData.sessionCookieID ? this.cookieData.sessionCookieID : sessionID;
 				this.spettacolo = this.cookieData.spettacolo ? this.cookieData.spettacolo : '';
 				this.nBiglietti = this.cookieData.nBiglietti && this.cookieData.spettacolo === this.id ? this.cookieData.nBiglietti : 0;
 				this.postiScelti = this.cookieData.posti && this.cookieData.spettacolo === this.id ? this.cookieData.posti : [];
@@ -1339,7 +1403,8 @@
 
 			console.log(this.checkedBiglietto)
 
-			this.choosePerformance(this.checkedOrario.idPerf, this.checkedOrario.idTariffa, this.checkedOrario.ora, this.checkedOrario.idsala, this.checkedOrario.sala);
+			if (Object.keys(sessionCookie).length > 0)
+				this.choosePerformance(this.checkedOrario.idPerf, this.checkedOrario.idTariffa, this.checkedOrario.ora, this.checkedOrario.idsala, this.checkedOrario.sala);
 		},
 		saveSessionCookie: function() {
 			let sessionSnack = this.snackChosen.map(function(elem){
@@ -1350,6 +1415,7 @@
 				});
 
 			let sessionCookie = {
+				sessionCookieID: sessionID,
 				spettacolo: this.id,
 				giorno: this.checkedGiorno,
 				ora: this.checkedOrario.ora,
@@ -1376,13 +1442,55 @@
 			localStorage.setItem('sessionCookie', sessionCookieStr);
 
 			console.log(sessionCookie);
-			location.href = `${this.appUrl}checkout`;
+			// this.addToCart(sessionID, this.checkedBiglietto.carrello)
+			// location.href = `${this.appUrl}checkout`;
+		},
+		// addToCart(id, items, data) {
+		// 	axios.get('addToCart', {params: {id, items}})
+		// 		.then((res) => {
+		// 			let result = res.data;
+
+		// 			if (result !== '' && data === 'checkout') {
+		// 				$(`.tab .cont#${data}`).removeClass('hidden');
+		// 				$(`.tab .cont:not(#${data})`).addClass('hidden');
+
+		// 				this.isCheckout = true;
+		// 				this.activeTab.dataTab = data;
+		// 			}
+
+		// 		console.log(result);
+		// 		console.log(this.cart);
+		// 	}).catch((err) => {
+		// 		console.log(err);
+		// 	});
+		// },
+		addToCart: function(id, items, data) {
+			axios.get('addToCart',
+			{
+				"id": id,
+				"items": items
+			})
+			.then((res) => {
+				let result = res.data;
+
+				if (result !== '' && data === 'checkout') {
+					$(`.tab .cont#${data}`).removeClass('hidden');
+					$(`.tab .cont:not(#${data})`).addClass('hidden');
+
+					this.isCheckout = true;
+					this.activeTab.dataTab = data;
+				}
+
+				console.log(result);
+			}).catch((err) => {
+				console.log(err);
+			});
 		},
 		scegliSnack: function(action, id) {
 
 			switch (action) {
 				case 'apri':
-					
+
 					$('#snacks-tab').removeClass('disabled');
 					$(`#snacks-tab ul li[id-nodo="${id}"`).click();
 					break;
@@ -1390,7 +1498,7 @@
 				case 'chiudi':
 					$('#snacks-tab').addClass('disabled');
 					break;
-			
+
 				default:
 					break;
 			}
@@ -1463,8 +1571,8 @@
 			return obj;
 		},
 		isSafari: function() {
-			let ua = navigator.userAgent.toLowerCase(); 
-			if (ua.indexOf('safari') != -1) { 
+			let ua = navigator.userAgent.toLowerCase();
+			if (ua.indexOf('safari') != -1) {
 				if (ua.indexOf('chrome') > -1) {
 					// Chrome
 					this.browser = 'chrome';

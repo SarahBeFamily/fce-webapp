@@ -4,7 +4,6 @@
  * CSRF token as a header based on the value of the "XSRF" token cookie.
  */
 
-import axios from 'redaxios';
 import $ from 'jquery';
 
 $(function() {
@@ -14,7 +13,7 @@ $(function() {
 		$('#login .start, #login .register, h1[start], h1[register]').addClass('hidden');
 		$('#login .login, h1[login').removeClass('hidden');
 	});
-	
+
 	$('#loginRegistrati').on('click', function() {
 		$('#login .intro').attr('phase', 'register');
 		$('#login .start, #login .login, h1[start], h1[login').addClass('hidden');
@@ -29,10 +28,29 @@ $(function() {
 
 	$('#recuperaPassword').on('click', function(e) {
 		e.preventDefault();
-		
+
 		$('#login .intro').attr('phase', 'register');
 		$('#login .start, #login .login, #login div.register, h1[start], h1[register], h1[login').addClass('hidden');
 		$('#login .forgot-password, #login img.register, h1[recupera]').removeClass('hidden');
+	});
+
+	let idCinema = localStorage.getItem('idCinema');
+	$('select#choose_cinema').val(idCinema);
+	// Cambia route al cambio di cinema in base al suo id
+	$('select#choose_cinema').on('change', function(e) {
+		let idCinema = $(this).find('option:selected').val(),
+			link = $(this).find('option:selected').attr('data-url');
+
+		localStorage.setItem('idCinema', idCinema);
+		$.ajax({
+			url: `/cookie/sessionIdCinema/${idCinema}`,
+			method: 'GET',
+			success: function(data) {
+				console.log(data)
+				location.href = link;
+			}
+		});
+		// $('form#getIdCinema').trigger('submit');
 	});
 });
 

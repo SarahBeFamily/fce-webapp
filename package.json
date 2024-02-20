@@ -4,9 +4,7 @@
     "scripts": {
         "dev": "vite --host",
         "build": "vite build",
-        "post-update-cmd": [
-            "@php artisan orchid:publish --ansi"
-        ]
+        "post-update-cmd": "@php artisan orchid:publish --ansi"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",
@@ -22,9 +20,11 @@
         "vue": "^3.2.36"
     },
     "dependencies": {
+        "@vue-stripe/vue-stripe": "^4.5.0",
         "laravel-vue-i18n": "^2.7.1",
         "redaxios": "^0.5.1",
         "slick-carousel": "^1.8.1",
+        "uuidv4": "^6.2.13",
         "vue-loader": "^17.2.2"
     }
 }

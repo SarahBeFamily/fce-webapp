@@ -87,7 +87,7 @@ body {
 }
 
 .hidden {
-	display: none;
+	display: none !important;
 }
 
 ul.space-y-1.mt-2 {
@@ -132,7 +132,7 @@ ul.space-y-1.mt-2 {
 
 .recommended .wrap {
 	background-size: cover !important;
-	height: 22vh;
+	height: 19vh;
 	border-radius: 10px;
 	background-position: bottom left !important;
 	display: flex;
@@ -147,13 +147,19 @@ ul.space-y-1.mt-2 {
 
 	.meta {
 		justify-content: space-between;
+		align-items: flex-end;
 		font-size: 13px;
 
 		ul {
-			padding-left: 12px;
-			display: flex;
-			justify-content: space-between;
+			padding-left: 0;
+			display: inline-flex;
 			flex-basis: 70%;
+			flex-wrap: wrap;
+			margin-left: -7px;
+
+			li {
+				margin-left: 20px;
+			}
 		}
 	}
 }

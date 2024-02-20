@@ -5,11 +5,15 @@
     <div class="header pad-both-24">
       <div class="bf-col flex flex-col">
         <span class="location">Firenze</span>
-        <select name="Cinema" id="choose_cinema">
-          <option value="cinema-x">Cinema X</option>
-          <option value="cinema-y">Cinema Y</option>
-          <option value="cinema-z">Cinema Z</option>
-        </select>
+        <form action="getIdCinema" id="getIdCinema">
+          <select name="Cinema" id="choose_cinema">
+            @foreach ($cinemas as $idCinema => $nomeCinema )
+              @php $selected = $idCinema == request()->route('idCinema') ? 'selected' : '' @endphp
+              <option value="{{ $idCinema }}" data-url="{{ route("home") }}" {{ $selected }}>{{ $nomeCinema }}</option>
+            @endforeach
+          </select>
+          <input type="submit" value="">
+        </form>
       </div>
 
       <div class="bf-col">
@@ -42,7 +46,7 @@
     <div class="cinema progr mb-24">
       <h2 class="title">{{ __('Al Cinema') }}</h2>
       <div class="carousel-two">
-        <cmp-alcinema />
+        <cmp-alcinema route="{{ request()->route('idCinema') }}" />
       </div>
     </div>
 

@@ -1,28 +1,51 @@
 <template>
 	<div class="film" v-for="film in films">
-		<a :href="'/film/'+film.id" class="wrap" :style="{ 'background': 'linear-gradient(180deg, rgba(0, 0, 0, 0.00) 47.4%, rgba(0, 0, 0, 0.60) 80.21%), url(' + film.img + ')' }">
-			<!-- <RouterLink :to="{name: 'FilmDetails', params: { id: film.id }}"><h2>{{ film.titolo }}</h2></RouterLink> -->
+		<a :href="`/${idCinema}/film/${film.id}`" class="wrap" :style="{ 'background': 'linear-gradient(180deg, rgba(0, 0, 0, 0.00) 47.4%, rgba(0, 0, 0, 0.60) 80.21%), url(' + film.img + ')' }">
             <h2>{{ film.titolo }}</h2>
         </a>
 	</div>
+
+    <p v-if="programmazione === false">
+        {{ $t('Nessun film in programmazione per questo cinema') }}
+    </p>
 </template>
   
   <script>
 	import axios from 'redaxios';
+    let idCinema = localStorage.getItem('idCinema') || 600;
 
 	export default {
+        props: ['route', 'path'],
     data() {
         return {
+            appUrl: this.path,
+			idCinema: idCinema,
+            WebtikBase: import.meta.env.VITE_WEBTIK_SERVICE_BASE,
             eventiID: [],
             films: [],
             sala: [],
+            programmazione: true,
         };
     },
     methods: {
+        checkCinema: function () {
+            axios.get(`${this.WebtikBase}_getEventListDetail?idcinema=${this.idCinema}`)
+            .then((res) => {
+                const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
+                    jsonData = this.xmlToJson(XmlNode);
+                // faccio partire la funzione per caricare i film se l'idCinema è valido
+                if(jsonData.eventListDetail.eventi !== undefined){
+                    this.fetchEventiId();
+                } else {
+                    this.programmazione = false;
+                }
+            }).catch(error=>{
+                console.log(error);
+            })
+        },
         fetchEventiId: function () {
             let eventi_arr = [];
-            axios.get('https://services.webtic.it/services/WSC_Webtic.asmx/_getEventListDetail?idcinema=600', {
-            })
+            axios.get(`${this.WebtikBase}_getEventListDetail?idcinema=${this.idCinema}`)
                 .then((res) => {
                 const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
                     jsonData = this.xmlToJson(XmlNode);
@@ -68,11 +91,7 @@
             let Eventi = this.films;
             for (let i = 0; i < Eventi.length; i++) {
                 let id = Eventi[i].id;
-                axios.get(`https://services.webtic.it/services/WSC_Webtic.asmx/_getEventImage?idcinema=600&idevento=${id}`, {
-                    // headers: { "Access-Control-Allow-Origin": ["http://fce.test/public", "http://192.168.1.140:5174/"],
-                    //             "Access-Control-Allow-Headers": "*",
-                    // }
-                })
+                axios.get(`${this.WebtikBase}_getEventImage?idcinema=${this.idCinema}&idevento=${id}`)
                     .then((res) => {
                     const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
                         jsonData = this.xmlToJson(XmlNode);
@@ -131,7 +150,7 @@
 		}
     },
     mounted() {
-        this.fetchEventiId();
+        this.checkCinema();
     },
 }
   </script>

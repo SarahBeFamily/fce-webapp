@@ -1,5 +1,6 @@
 @extends('/layouts/app')
 
 @section('content')
-	Pagina checkout
+
+	<cmp-checkout></cmp-checkout>
 @endsection

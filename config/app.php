@@ -159,7 +159,6 @@ return [
         /*
          * Package Service Providers...
          */
-
         /*
          * Application Service Providers...
          */
@@ -185,4 +184,5 @@ return [
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
 
+    'webtik_service_base' => env('WEBTIK_SERVICE_BASE', 'https://services.webtic.it/services/WSC_Webtic.asmx/'),
 ];

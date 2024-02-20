@@ -1,0 +1,164 @@
+#checkout.page {
+	margin: 24px;
+	font-size: 13px;
+
+	.meta-film {
+		display: flex;
+		justify-content: space-between;
+
+		.locandina {
+			flex-basis: 35%;
+
+			img {
+				width: 100%;
+				height: auto;
+			}
+		}
+
+		.info-film {
+			flex-basis: 60%;
+
+			h1, span {
+				color: white !important;
+				font-weight: bold !important;
+			}
+
+			p {
+				margin-bottom: 5px !important;
+				font-size: 15px;
+				color: var(--int2);
+			}
+		}
+	}
+
+	.scelte {
+		display: flex;
+		justify-content: space-between;
+		padding: 20px 0;
+		border-bottom: 1px solid rgba(249, 250, 251, 0.2);
+		
+		> div {
+			flex-basis: calc(97% / 3);
+			display: flex;
+			flex-direction: column;
+			color: var(--int2);
+		}
+
+		span {
+			color: white !important;
+			font-weight: bold !important;
+		}
+	}
+
+	.biglietti {
+		padding: 8px 0;
+		border-bottom: 1px solid rgba(249, 250, 251, 0.2);
+		color: var(--int2);
+
+		.tik {
+			display: flex;
+			justify-content: space-between;
+			color: white;
+			padding-top: 2px;
+
+			.nome.snack {
+				flex-basis: 50%;
+			}
+
+			.prezzo {
+				align-items: flex-end;
+				display: flex;
+			}
+
+			.qtySnack {
+				color: rgba(250, 244, 219, 0.40);
+				font-weight: 600;
+			}
+		}
+	}
+
+	.totale {
+		justify-content: space-between;
+		color: white;
+		align-items: center;
+		  padding-top: 10px;
+
+		span {
+			font-weight: bold;
+			font-size: 17px;
+
+			&.prezzo {
+				font-size: 20px;
+			}
+		}
+	}
+
+	.submit {
+		box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+		justify-content: center;
+		padding: 16px;
+		font-weight: 700;
+  		font-size: 16px;
+
+		&.inactive:not(#btn-checkout) {
+			border: 1px solid rgba(250,244,219,0.2) !important;
+			border-radius: 8px;
+		}
+
+		&.inactive {
+			color: rgba(250, 244, 219, 0.2);
+
+			input {
+				color: rgba(250, 244, 219, 0.2);
+				pointer-events: none;
+			}
+
+			i.arrow-right::before {
+				content: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M14.43 5.92993L20.5 11.9999L14.43 18.0699M3.5 11.9999H20.33' stroke='%23FAF4DB' stroke-opacity='0.2' stroke-width='1.5' stroke-miterlimit='10' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E ");
+			}
+
+			&#btn-checkout {
+				background-color: black;
+				border-radius: 8px 8px 0 0;
+			}
+		}
+
+		&:not(.inactive) {
+			color: white;
+			cursor: pointer;
+			background-color: black;
+			border-radius: 8px 8px 0 0;
+		}
+
+		&#btn-checkout,
+		&#btn-acquista {
+			margin-top: 27px;
+		}
+
+		input {
+			border: 0;
+			background: transparent;
+			font-size: 18px;
+			font-family: var(--main-font);
+			font-weight: 500;
+			color: white;
+		}
+
+		i {
+			margin-left: 10px;
+		}
+	}
+
+	/* Chrome, Safari, Edge, Opera */
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	/* Firefox */
+	input[type=number] {
+		-moz-appearance: textfield;
+		appearance: textfield;
+	}
+}

@@ -54,21 +54,25 @@
 </template>
 
 <script>
-	let idCinema = 600;
-
 	import axios from 'redaxios'
 	import $ from 'jquery'
 	import 'slick-carousel'
+	import { v4 as uuidv4 } from "uuid"
+
+	const sessionID = uuidv4().replace(/-/g, '');
 
 	import.meta.glob(['../../images/**',]);
 
 	export default {
-		props: ['route', 'path'],
+		props: ['route', 'cinema', 'path'],
     data() {
         return {
 			appUrl: this.path,
 			id: this.route,
-			idCinema: idCinema,
+			apiFood: import.meta.env.VITE_API_FOOD,
+			WebtikHandle: import.meta.env.VITE_WEBTIK_HANDLE_ARTICOLI,
+			idCinema: this.cinema,
+			sessionID: sessionID,
 			recap: '',
 			thisfood: '',
 			Nome: '',
@@ -134,6 +138,7 @@
 			this.cookieData = sessionCookie;
 
 			if (Object.keys(this.cookieData).length > 0) {
+				this.sessionID = this.cookieData.sessionCookieID ? this.cookieData.sessionCookieID : sessionID;
 				this.checkedGiorno = this.cookieData.giorno ? this.cookieData.giorno : '';
 				this.checkedOrario.ora = this.cookieData.ora ? this.cookieData.ora : '';
 				this.checkedOrario.sala = this.cookieData.sala ? this.cookieData.sala : '';
@@ -444,7 +449,7 @@
 			return arr;
 		},
 		fetchFood: function() {
-			axios.post(`http://fce.winticstellar.com/evolution/webapi/api/getArticoliNegozio`,
+			axios.post(this.apiFood,
 			{
 				"idnegozio": "600",
 				"web_box": "demo",
@@ -457,9 +462,9 @@
 					
 					console.log(categorie);
 					// foto
-					//`http://fce.winticstellar.com/evolution/webapi/Handlers/handlerArticoli.ashx?idnegozio=${idCinema}&idarticolo=${idArticolo}&LOB_SIZE=SMALL&t=20230707084628`;
+					//`http://fce.winticstellar.com/evolution/webapi/Handlers/handlerArticoli.ashx?idnegozio=${this.idCinema}&idarticolo=${idArticolo}&LOB_SIZE=SMALL&t=20230707084628`;
 					this.foodCat = categorie;
-					this.foto = `http://fce.winticstellar.com/evolution/webapi/Handlers/handlerArticoli.ashx?idnegozio=${idCinema}&idarticolo=${this.id}&LOB_SIZE=SMALL&t=20230707084628`;
+					this.foto = `${this.WebtikHandle}?idnegozio=${this.idCinema}&idarticolo=${this.id}&LOB_SIZE=SMALL&t=20230707084628`;
 
 
 					categorie.map((elem) => {
@@ -495,6 +500,7 @@
 				});
 
 			let sessionCookie = {
+				sessionCookieID: this.cookieData.sessionCookieID ? this.cookieData.sessionCookieID : sessionID,
 				giorno: this.checkedGiorno,
 				ora: this.checkedOrario.ora,
 				sala: this.checkedOrario.sala,
@@ -583,7 +589,6 @@
 		this.isSafari();
 		this.fetchFood();
     },
-    // components: { RouterLink }
-	}
+}
 
 </script>
