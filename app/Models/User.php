@@ -8,6 +8,9 @@ use Orchid\Filters\Types\WhereDateStartEnd;
 use Orchid\Platform\Models\User as Authenticatable;
 use Orchid\Screen\AsSource;
 use Laravel\Cashier\Billable;
+Use Laravel\Cashier\PaymentMethod;
+use function Illuminate\Events\queueable;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class User extends Authenticatable
 {
@@ -91,5 +94,17 @@ class User extends Authenticatable
     protected static function newFactory(): Factory
     {
         return UserFactory::new();
+    }
+ 
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::updated(queueable(function (User $customer) {
+            if ($customer->hasStripeId()) {
+                $customer->syncStripeCustomerDetails();
+            }
+        }));
     }
 }

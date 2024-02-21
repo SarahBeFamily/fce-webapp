@@ -12,17 +12,19 @@
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Cabin&family=Montserrat:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"> 
 
-        <!-- Scripts -->
+        <!-- Styles -->
         @vite('resources/styles/app/app.scss')
+        @yield('styles')
     </head>
     <body>
         <div id="app">
-            
             @include('partials.navigation')
             
             @yield('content')
         </div>
 
+        <!-- Scripts -->
         @vite('resources/js/app.js')
+        @yield('scripts')
     </body>
 </html>

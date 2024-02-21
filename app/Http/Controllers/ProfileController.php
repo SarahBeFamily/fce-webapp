@@ -57,4 +57,24 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    /**
+     * Add payment method to the user's profile.
+     */
+    public function addPaymentMethod(Request $request): RedirectResponse
+    {
+        // Get the Stripe user or create a new one.
+        $stripeCustomer = $request->user()->createOrGetStripeCustomer();
+
+        // Check if user has already a default payment method.
+        if ($request->user()->hasDefaultPaymentMethod()) {
+            // Set the default payment method.
+            $request->user()->updateDefaultPaymentMethod($request->input('payment_method'));
+            return Redirect::route('profilo')->with('status', 'payment-method-updated');
+        } else {
+            // Update the default payment method.
+            $request->user()->addPaymentMethod($request->input('payment_method'));
+            return Redirect::route('profilo')->with('status', 'payment-method-added');
+        }
+    }
 }

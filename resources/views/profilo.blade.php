@@ -8,6 +8,7 @@
 		<p>Ciao {{ $nome }}!</p>
 
 		@include('profile.partials.update-profile-information-form')
+		@include('profile.partials.payment-methods')
 
 		<div class="logout">
 			@include('auth.logout')

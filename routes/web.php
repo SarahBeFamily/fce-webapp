@@ -41,10 +41,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profilo', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profilo', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profilo', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profilo', [ProfileController::class, 'addPaymentMethod'])->name('profile.payment-methods');
 });
 
 Route::get('/profilo', function () {
-    return view('profilo');
+    return view('profilo', ['intent' => auth()->user()->createSetupIntent()]);
 })->middleware(['auth', 'verified'])->name('profilo');
 
 Route::get('/{idCinema}/film', function ($idCinema) {
@@ -93,7 +94,7 @@ Route::get('/cart/{cart}/checkout', function (Request $request, Cart $cart) {
         'price_ids' => $cart->price_ids,
         'order_data_list' => $cart->cart_items,
         'order_ref_cinema' => $cart->order_ref_cinema,
-        'order_status' => 'incomplete',
+        'order_status' => 'pending',
     ]);
 
     return $request->user()->checkout($order->price_ids, [
@@ -107,22 +108,44 @@ Route::post('stripe/webhook', 'StripeWebhookController@handleWebhook')->name('ca
 
 Route::get('/getSession', [StripeController::class, 'getSession'])->name('getSession');
 
+// Route::get('/checkout/success', function (Request $request) {
+
+//     $sessionId = $request->get('session_id');
+//     $orderId = Cashier::stripe()->checkout->sessions->retrieve($sessionId)['metadata']['order_id'] ?? null;
+
+//     $order = Orders::findOrFail($orderId);
+//     // $film = $request->film;
+//     // $user = Auth::user();
+//     // $order = new Order();
+//     // $order->user_id = $user->id;
+//     // $order->film_id = $film;
+//     // $order->save();
+//     $order->update(['order_status' => 'pagato']);
+
+//     return view('checkout-success', ['order' => $order]);
+// });
+
 Route::get('/checkout/success', function (Request $request) {
-
     $sessionId = $request->get('session_id');
-    $orderId = Cashier::stripe()->checkout->sessions->retrieve($sessionId)['metadata']['order_id'] ?? null;
-
-    $order = Orders::findOrFail($orderId);
-    // $film = $request->film;
-    // $user = Auth::user();
-    // $order = new Order();
-    // $order->user_id = $user->id;
-    // $order->film_id = $film;
-    // $order->save();
-    $order->update(['order_status' => 'pagato']);
-
+ 
+    if ($sessionId === null) {
+        return;
+    }
+ 
+    $session = Cashier::stripe()->checkout->sessions->retrieve($sessionId);
+ 
+    if ($session->payment_status !== 'paid') {
+        return;
+    }
+ 
+    $orderId = $session['metadata']['order_id'] ?? null;
+ 
+    $order = Order::findOrFail($orderId);
+ 
+    $order->update(['status' => 'pagato']);
+ 
     return view('checkout-success', ['order' => $order]);
-});
+})->name('checkout-success');
 
 
 require __DIR__.'/auth.php';
