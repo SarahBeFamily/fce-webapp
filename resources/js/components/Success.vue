@@ -15,11 +15,6 @@
 </template>
 
 <script>
-	// Wiki API
-	let WebtikBase = 'https://services.webtic.it/services/WSC_Webtic.asmx/',
-		WebtikBase2 = 'http://services.webtic.it/services/WSC_Webtic.asmx?op=',
-		idCinema = 600;
-
 	import axios from 'redaxios'
 	import $ from 'jquery'
 
@@ -33,6 +28,11 @@
 			id: this.route,
 			sessionId: null,
 			idCinema: idCinema,
+			stripeKey: import.meta.env.VITE_STRIPE_KEY,
+			stripeSecretKey: import.meta.env.VITE_STRIPE_SECRET,
+			WebtikBase: import.meta.env.VITE_WEBTIK_SERVICE_BASE,
+			apiFood: import.meta.env.VITE_API_FOOD,
+			WebtikHandler: import.meta.env.VITE_WEBTIK_HANDLE_ARTICOLI,
 			spettacolo: '',
 			dettagli: {},
 			orari: [],
@@ -64,8 +64,6 @@
 			fiscal_address: '',
 			fiscal_port: '',
 			browser: '',
-			loading: false,
-			lineItems: [],
         };
     },
 	methods: {
@@ -149,81 +147,6 @@
 				this.fiscal_port = jsonData.fiscal_port;
 			});
 		},
-		checkout: function() {
-			let tipoBiglietti_array = [],
-				tariffa = '',
-				qty = 0;
-
-			// divido le tipologie di biglietto richieste
-			this.checkedBiglietto.carrello.map((item) => {
-				if (item.type === 'biglietto') {
-					tariffa = item.tariffa;
-
-					if (tariffa === item.tariffa)
-						qty += item.qty;
-				}
-				if (item.type === 'biglietto' && tipoBiglietti_array.findIndex(function(o){ return o.id === item.tariffa }) === -1)
-					tipoBiglietti_array.push({id: item.tariffa, qty: qty});
-			});
-
-			let posti = this.postiScelti.join(';');
-
-			// Blocca i posti prima della transazione
-			axios.get(`${WebtikBase}setBloccoPosti?idcinema=${idCinema}&idperformance=${this.checkedOrario.idPerf}&sSessionId=${this.sessionID}&aiProgPosti=${posti}`)
-				.then((res) => {
-				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
-					jsonData = this.xmlToJson(XmlNode);
-
-				console.log(jsonData);
-				// if (jsonData.boolean) {
-				// 	this.activeSubmitCheckout = false;
-				// 	this.activeSubmit = false;
-				// 	this.saveSessionCookie();
-				// 	this.$router.push({ name: 'checkout' });
-				// } else {
-				// 	alert('Errore');
-				// }
-			});
-
-			// Passo i prodotti a Stripe
-			// [
-			//     [
-			//         'price_data' => [
-			//             'currency' => 'eur',
-			//             'unit_amount' => 100,
-			//             'product_data' => [
-			//                 'name' => 'FCE - First Class Entertainment',
-			//             ],
-			//         ],
-			//         'quantity' => 1,
-			//     ],
-			// ],
-			let items = [];
-			this.checkedBiglietto.carrello.map((item) => {
-				let nome = item.type === 'biglietto' ? `${item.nome} ${item.posto}` : item.nome;
-
-				// items.push({
-				// 	currency: 'eur',
-				// 	unit_amount: (item.prezzo).replace(',', ''), //parseInt(item.prezzo) * 100,
-				// 	name: nome,
-				// 	quantity: item.qty,
-				// 	// price_data: {
-				// 	// 	currency: 'eur',
-				// 	// 	unit_amount: (item.prezzo).replace(',', ''), //parseInt(item.prezzo) * 100,
-				// 	// 	product_data: {
-				// 	// 		name: nome,
-				// 	// 	},
-				// 	// },
-				// 	// quantity: item.qty,
-				// });
-
-				items.push(`eur // ${(item.prezzo).replace(',', '')} // ${nome} // ${item.qty} // ${this.spettacolo}`)
-			});
-
-			this.lineItems = items; //this.propertiesToArray(items);
-			console.log(this.lineItems);
-			this.getSession(this.lineItems);
-		},
 		xmlToJson: function(xml) {
 			// Create the return object
 			let obj = {};
@@ -303,24 +226,11 @@
 				}
 			}
 		},
-		getSession(items) {
-			axios.get('getSession', {params: {items}})
-				.then((res) => {
-				console.log(res.data);
-				this.sessionId = res.data.id;
-			}).catch((err) => {
-				console.log(err);
-			});
-		},
-		submit() {
-			this.$refs.checkoutRef.redirectToCheckout();
-		}
     },
     mounted() {
 		this.fetchCookiedata();
 		this.isSafari();
 		this.fetchFiscalAddress();
-		this.checkout();
     }
 }
 

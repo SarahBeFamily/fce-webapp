@@ -42,6 +42,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profilo', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profilo', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profilo', [ProfileController::class, 'addPaymentMethod'])->name('profile.payment-methods');
+    Route::get('/profilo/ordini', function(Orders $orders) {
+        return view('profile.partials.orders', ['orders' => auth()->user()->orders]);
+    })->name('profile.orders');
+    Route::get('/profilo/ordini/{ordine}', function(Orders $ordine) {
+        return view('profile.partials.order-details', ['order' => $ordine]);
+    })->name('profile.orders.show');
 });
 
 Route::get('/profilo', function () {
@@ -56,96 +62,50 @@ Route::get('/{idCinema}/food', function ($idCinema) {
     return view('food', ['idCinema' => $idCinema]);
 })->name('food');
 
-Route::get('/{idCinema}/film/{id}', function (Orders $orders, $idCinema, $id) {
-    return view('partials.single-film',['orders' => $orders, 'idCinema' => $idCinema, 'film' => $id]);
-});
+Route::get('/{idCinema}/film/{id}', function ($idCinema, $id) {
+    
+    $intent = '';
+    $intent_id = '';
+    if (Auth::check()) {
+        $payment = auth()->user()->pay(100);
+        $intent = $payment->client_secret;
+        $intent_id = $payment->id;
+    }
+   
+    return view('partials.single-film',['idCinema' => $idCinema, 'film' => $id, 'intent' => $intent, 'intent_id' => $intent_id]);
+})->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 // Route::get('/addToCart', [OrdersController::class, 'getCart'])->name('addToCart');
-Route::get('addToCart', function () {
-    return [
-        'cart' => session()->get('cart'),
-        'test' => 'test'
-    ];
-});
 
 Route::get('/{idCinema}/food/{id}', function ($idCinema, $id) {
     return view('partials.single-food',['idCinema' => $idCinema, 'food' => $id]);
 });
 
-Route::get('/{idCinema}/biglietti', function ($idCinema) {
-    return view('biglietti', ['idCinema' => $idCinema]);
+Route::get('/biglietti', function () {
+    return view('biglietti');
 })->name('biglietti');
 
-Route::get('/{idCinema}/checkout', function ($idCinema) {
+Route::get('/checkout', function () {
     if (!Auth::check()) {
-        return view('accedi', ['idCinema' => $idCinema]);
+        return view('accedi');
     } else {
-        return view('checkout', ['idCinema' => $idCinema]);
+        return view('checkout');
     }
 });
 
-Route::get('/{idCinema}/carrello', function ($idCinema) {
-    return view('cart', ['idCinema' => $idCinema]);
+Route::get('/carrello', function () {
+    return view('cart');
 })->name('cart');
 
-Route::get('/cart/{cart}/checkout', function (Request $request, Cart $cart) {
-    $order = Orders::create([
-        'cart_id' => $cart->id,
-        'price_ids' => $cart->price_ids,
-        'order_data_list' => $cart->cart_items,
-        'order_ref_cinema' => $cart->order_ref_cinema,
-        'order_status' => 'pending',
-    ]);
 
-    return $request->user()->checkout($order->price_ids, [
-        'success_url' => route('checkout-success').'?session_id={CHECKOUT_SESSION_ID}',
-        'cancel_url' => route('checkout-cancel'),
-        'metadata' => ['order_id' => $order->id],
-    ]);
-})->name('checkout');
-
+// Collegameno Stripe Webhook
 Route::post('stripe/webhook', 'StripeWebhookController@handleWebhook')->name('cashier.webhook')->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
-
 Route::get('/getSession', [StripeController::class, 'getSession'])->name('getSession');
+Route::get('/getStripeCustomer', [StripeController::class, 'getStripeCustomer'])->name('getStripeCustomer');
+Route::get('/updatePaymentIntent', [StripeController::class, 'updatePaymentIntent'])->name('updatePaymentIntent');
+Route::get('/createOrder', [StripeController::class, 'createOrder'])->name('createOrder');
 
-// Route::get('/checkout/success', function (Request $request) {
-
-//     $sessionId = $request->get('session_id');
-//     $orderId = Cashier::stripe()->checkout->sessions->retrieve($sessionId)['metadata']['order_id'] ?? null;
-
-//     $order = Orders::findOrFail($orderId);
-//     // $film = $request->film;
-//     // $user = Auth::user();
-//     // $order = new Order();
-//     // $order->user_id = $user->id;
-//     // $order->film_id = $film;
-//     // $order->save();
-//     $order->update(['order_status' => 'pagato']);
-
-//     return view('checkout-success', ['order' => $order]);
-// });
-
-Route::get('/checkout/success', function (Request $request) {
-    $sessionId = $request->get('session_id');
- 
-    if ($sessionId === null) {
-        return;
-    }
- 
-    $session = Cashier::stripe()->checkout->sessions->retrieve($sessionId);
- 
-    if ($session->payment_status !== 'paid') {
-        return;
-    }
- 
-    $orderId = $session['metadata']['order_id'] ?? null;
- 
-    $order = Order::findOrFail($orderId);
- 
-    $order->update(['status' => 'pagato']);
- 
-    return view('checkout-success', ['order' => $order]);
-})->name('checkout-success');
+Route::get('/checkout/success', [StripeController::class, 'checkoutSuccess'])->name('checkout-success');
 
 
 require __DIR__.'/auth.php';

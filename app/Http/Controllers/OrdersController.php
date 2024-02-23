@@ -8,13 +8,13 @@ class OrdersController extends Controller
 {
     public function getCart()
     {
-        $cart = session()->get('cart');
+        $cart = session()->get('sessionCart');
         return response()->json($cart);
     }
     
     public function addToCart(Request $id, $items)
     {
-        $cart = session('cart');
+        $cart = session('sessionCart');
         $items = json_decode($items);
         $newCart = [];
 

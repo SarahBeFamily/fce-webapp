@@ -17,6 +17,7 @@ return new class extends Migration
                 ->references('id')
                 ->on('users');
             $table->increments('id');
+            $table->string('cart_id');
             $table->string('order_type');
             $table->string('order_status');
             $table->jsonb('order_data_list');

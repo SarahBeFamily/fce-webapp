@@ -4,14 +4,18 @@
 
 	@php 
 	$routeId = Route::current()->parameter('idCinema');
-	$idCinema = request()->cookie('sessionIdCinema') ?? $routeId; 
-	// var_dump(request()->session('cart'));
+	$idCinema = request()->cookie('sessionIdCinema') ?? $routeId;
+	$user = Auth::user();
+	// var_dump($intent);
 	@endphp
 
 	<cmp-singlefilm 
 		route="{{ request()->route('id') }}" 
 		cinema="{{ $idCinema }}"
 		path="{{ asset('/')}}"
+		user="{{ json_encode($user) }}"
+		client_secret="{{ $intent }}"
+		intent_id="{{ $intent_id }}"
 		{{-- carrello="{{ json_encode($orders->getCart()) }}" --}}
 	></cmp-singlefilm>
 

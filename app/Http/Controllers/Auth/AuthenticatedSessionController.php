@@ -48,6 +48,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
+        // Elimino la sessione del carrello
+        $request->session()->forget('sessionCart');
+
         return redirect('/');
     }
 }

@@ -17,10 +17,18 @@ class DatabaseSeeder extends Seeder
 
         User::create(
             [
+                'name' => 'Sarah',
+                'user_firstname' => 'Sarah',
+                'user_lastname' => 'Pinna',
+                'email' => 'sarah@befamily.it',
+                'password' => 'Spinn@86',
+                'user_birthdate' => '1986-08-4',
+            ],
+            [
+                'name' => 'SarahC',
                 'user_firstname' => 'Sarah',
                 'user_lastname' => 'Pinna',
                 'email' => 'sarah.pinna@icloud.com',
-                'user_created_at' => now(),
                 'password' => 'Spinn@86!',
                 'user_birthdate' => '1986-08-4',
             ]

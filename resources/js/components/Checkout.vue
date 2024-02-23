@@ -102,7 +102,7 @@
 					idPerf: '',
 					idTariffa: ''
 				},
-				checkedBiglietto: {
+				carrello: {
 					spettacolo: '',
 					carrello: [],
 					nBiglietti: 0,
@@ -141,8 +141,7 @@
 					this.checkedOrario.idPerf = this.cookieData.idPerf ? this.cookieData.idPerf : '';
 					this.checkedOrario.idTariffa = this.cookieData.idTariffa ? this.cookieData.idTariffa : '';
 
-					this.checkedBiglietto = this.cookieData.checkedBiglietto ? this.cookieData.checkedBiglietto : {};
-					this.checkedBiglietto.carrello = this.cookieData.checkedBiglietto.carrello ? this.cookieData.checkedBiglietto.carrello : [];
+					this.carrello = this.cookieData.carrello ? this.cookieData.carrello : {};
 					this.checkedBiglietto.recap = this.cookieData.recap ? this.cookieData.recap : [];
 					this.checkedBiglietto.prezzi = this.cookieData.prezzi? this.cookieData.prezzi : [];
 					this.checkedBiglietto.totString = this.cookieData.totString ? this.cookieData.totString : '';

@@ -2,5 +2,9 @@
 
 @section('content')
 
-	<cmp-success route="{{ request()->route('film') }}"></cmp-success>
+	<cmp-success 
+		route="{{ request()->route('film') }}"
+		order="{{ request()->route('order') }}"
+	>
+	</cmp-success>
 @endsection
