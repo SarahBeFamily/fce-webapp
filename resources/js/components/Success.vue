@@ -1,16 +1,24 @@
 <template>
-	<div id="checkout" class="page">
-		<h1>Checkout</h1>
+	<div id="success" class="page" :style="{ 'background': 'linear-gradient(180deg, rgba(16, 16, 16, 0.00) 0%, rgba(16, 16, 16, 0.5) 30%, #080808 76.46%), url(' + dettagli.locandina + ')' }">
+		
+		<i class="check-success"></i>
 
-		<div class="meta-film">
-			<div class="foto"
-				:class="{small: activeTab.dataTab != 'info' ? 'small' : ''}"
-				:style="{ 'background': 'linear-gradient(180deg, rgba(16, 16, 16, 0.00) 0%, #080808 86.46%), url(' + dettagli.locandina + ')' }">
-				<h1 class="title" v-if="!isCheckout">{{ dettagli.titolo }}</h1>
-			</div>
+		<h1>{{ $t('Pagamento andato a buon fine') }}</h1>
+		<p v-if="device == 'mobile'">
+			{{ $t('Ora puoi visualizzare direttamente il tuo biglietto oppure aggiungerlo al Wallet per averlo a portata di mano') }}
+		</p>
 
+		<div class="actions">
+			<button id="btn-download-tickets" @click="getTickets()" class="with-icon primary-black">
+				{{ $t('Visualizza biglietti') }}
+				<i class="tickets white"></i>
+			</button>
+
+			<button v-if="device == 'mobile'" id="btn-wallet" @click="addWallet()" class="with-icon primary-black border">
+				{{ $t('Aggiungi al Wallet') }}
+				<i class="wallet"></i>
+			</button>
 		</div>
-
 	</div>
 </template>
 
@@ -21,13 +29,14 @@
 	import.meta.glob(['../../images/**',]);
 
 	export default {
-		props: ['route', 'path'],
+		props: ['film', 'order'],
     data() {
         return {
-			appUrl: this.path,
-			id: this.route,
+			id: this.film,
+			order: this.order,
 			sessionId: null,
-			idCinema: idCinema,
+			idCinema: null,
+			orderObj: null,
 			stripeKey: import.meta.env.VITE_STRIPE_KEY,
 			stripeSecretKey: import.meta.env.VITE_STRIPE_SECRET,
 			WebtikBase: import.meta.env.VITE_WEBTIK_SERVICE_BASE,
@@ -35,75 +44,22 @@
 			WebtikHandler: import.meta.env.VITE_WEBTIK_HANDLE_ARTICOLI,
 			spettacolo: '',
 			dettagli: {},
-			orari: [],
-			prezzi: [],
-			biglietti: [],
-			nBiglietti: 0,
-			recap: '',
-			checkedGiorno: '',
-			checkedOrario: {
-				ora: '',
-				n_sala: '',
-				sala: '',
-				idsala: '',
-				idPerf: '',
-				idTariffa: ''
-			},
-			checkedBiglietto: {
-				spettacolo: '',
-				carrello: [],
-				nBiglietti: 0,
-				recap: [],
-				prezzi: [],
-				totString: '',
-				totale: 0,
-				index: 0,
-				isChecked: false,
-			},
-			postiScelti: [],
 			fiscal_address: '',
 			fiscal_port: '',
 			browser: '',
+			device: $(window).width() < 768 ? 'mobile' : 'desktop',
         };
     },
 	methods: {
-		fetchCookiedata: function() {
-			let sessionCookie = localStorage.getItem('sessionCookie') ? JSON.parse(localStorage.getItem('sessionCookie')) : {};
-			
-			console.log(sessionCookie);
-			this.cookieData = sessionCookie;
-			
-			if (Object.keys(this.cookieData).length > 0) {
-				this.sessionID = this.cookieData.sessionCookieID ? this.cookieData.sessionCookieID : sessionID;
-				this.spettacolo = this.cookieData.spettacolo ? this.cookieData.spettacolo : '';
-				this.nBiglietti = this.cookieData.nBiglietti ? this.cookieData.nBiglietti : 0;
-				this.postiScelti = this.cookieData.posti ? this.cookieData.posti : [];
+		fetchData: function() {
+			this.orderObj = JSON.parse(this.order);
+			this.idCinema = this.orderObj.order_ref_cinema;
+			console.log(this.orderObj);
 
-				this.checkedGiorno = this.cookieData.giorno ? this.cookieData.giorno : '';
-				this.checkedOrario.ora = this.cookieData.ora ? this.cookieData.ora : '';
-				this.checkedOrario.sala = this.cookieData.sala ? this.cookieData.sala : '';
-				this.checkedOrario.idsala = this.cookieData.idsala ? this.cookieData.idsala : '';
-				this.checkedOrario.idPerf = this.cookieData.idPerf ? this.cookieData.idPerf : '';
-				this.checkedOrario.idTariffa = this.cookieData.idTariffa ? this.cookieData.idTariffa : '';
-
-				this.checkedBiglietto = this.cookieData.checkedBiglietto ? this.cookieData.checkedBiglietto : {};
-				this.checkedBiglietto.carrello = this.cookieData.checkedBiglietto.carrello ? this.cookieData.checkedBiglietto.carrello : [];
-				this.checkedBiglietto.recap = this.cookieData.recap ? this.cookieData.recap : [];
-				this.checkedBiglietto.prezzi = this.cookieData.prezzi? this.cookieData.prezzi : [];
-				this.checkedBiglietto.totString = this.cookieData.totString ? this.cookieData.totString : '';
-				this.checkedBiglietto.totale = this.cookieData.totale ? this.cookieData.totale : 0;
-				this.checkedBiglietto.nBiglietti = this.cookieData.nBiglietti ? this.cookieData.nBiglietti : 0;
-				this.checkedBiglietto.isChecked = this.cookieData.isChecked ? this.cookieData.isChecked : false;
-
-				this.recap = this.cookieData.recapString ? this.cookieData.recapString : '';
-				this.activeSubmit = this.cookieData.activeSubmit && this.cookieData.spettacolo === this.id ? this.cookieData.activeSubmit : false;
-			}
-
-			console.log(this.checkedBiglietto)
-			this.fetchEvento(this.spettacolo);
+			this.fetchEvento();
 		},
-		fetchEvento: function (idevento) {
-            axios.get(`${WebtikBase}_getPerformanceListDetail?idcinema=${idCinema}&idevento=${idevento}`)
+		fetchEvento: function () {
+            axios.get(`${this.WebtikBase}_getPerformanceListDetail?idcinema=${this.idCinema}&idevento=${this.id}`)
                 .then((res) => {
 				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
 					jsonData = this.xmlToJson(XmlNode),
@@ -125,11 +81,11 @@
 					lingua: 'Italiano',
 				};
 
-				this.addImage(idevento);
+				this.addImage(this.id);
             });
         },
 		addImage: function (idevento) {
-			axios.get(`https://services.webtic.it/services/WSC_Webtic.asmx/_getEventImage?idcinema=${idCinema}&idevento=${idevento}`)
+			axios.get(`${this.WebtikBase}_getEventImage?idcinema=${this.idCinema}&idevento=${idevento}`)
 				.then((res) => {
 				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
 					jsonData = this.xmlToJson(XmlNode);
@@ -138,13 +94,21 @@
 			});
         },
 		fetchFiscalAddress: function() {
-			axios.get(`${WebtikBase}_getFiscalAddress?idcinema=${idCinema}`)
+			axios.get(`${this.WebtikBase}_getFiscalAddress?idcinema=${this.idCinema}`)
 				.then((res) => {
 				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
-					jsonData = this.xmlToJson(XmlNode);
+					jsonData = this.xmlToJson(XmlNode),
+					fiscal_address = jsonData.FiscalAddress.fiscal_address,
+					fiscal_port = jsonData.FiscalAddress.fiscal_port;
 
-				this.fiscal_address = jsonData.fiscal_address;
-				this.fiscal_port = jsonData.fiscal_port;
+					if (fiscal_address !== 'x' && fiscal_port !== 'x') {
+						this.fiscal_address = fiscal_address;
+						this.fiscal_port = fiscal_port;
+					} else {
+						// dati di test
+						this.fiscal_address = '212.161.77.100';
+						this.fiscal_port = '5001';
+					}
 			});
 		},
 		xmlToJson: function(xml) {
@@ -228,9 +192,10 @@
 		},
     },
     mounted() {
-		this.fetchCookiedata();
+		this.fetchData();
 		this.isSafari();
 		this.fetchFiscalAddress();
+		console.log(this.device);
     }
 }
 

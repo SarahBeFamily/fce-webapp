@@ -17,4 +17,29 @@ button:not(.switch) {
 		border-color: white;
 		color: white;
 	}
+
+	&.primary-black {
+		padding: 18px;
+		background: black;
+		margin-top: 10px;
+		border-radius: 10px;
+		font-weight: 500;
+		border: 2px solid black;
+		color: white;
+
+		&.border {
+			background: transparent;
+			border-color: white;
+		}
+	}
+
+	&.with-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		i {
+			margin-left: 10px;
+		}
+	}
 }

@@ -194,7 +194,7 @@ class StripeController extends Controller
         $success = $request->redirect_status == 'succeeded' ? true : false;
 
         if (!$success) {
-            return view('checkout-failed');
+            return back()->with('error', 'Errore: Pagamento non riuscito! Si prega di riprovare.');
         } else {
             $order = Orders::find($request->order);
             $order->update([
@@ -202,7 +202,13 @@ class StripeController extends Controller
                 'order_transaction' => $request->payment_intent,
             ]);
 
-            return view('checkout-success', ['order' => $order, 'film' => $request->get('film')]);
+            $request->session()->forget('sessionCart');
+            $data = [
+                'order' => $request->order,
+                'film' => $request->film,
+            ];
+
+            return view('checkout-success')->with($data);
         }
     }
 }

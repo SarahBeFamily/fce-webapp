@@ -2,9 +2,14 @@
 
 @section('content')
 
+	@php
+		$orderID = $order;
+		$orderOBj = App\Models\Orders::where('id', $orderID)->first();
+	@endphp
+
 	<cmp-success 
-		route="{{ request()->route('film') }}"
-		order="{{ request()->route('order') }}"
+		film="{{ $film }}"
+		order="{{ $orderOBj }}"
 	>
 	</cmp-success>
 @endsection

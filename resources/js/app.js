@@ -9,6 +9,7 @@ import Food from './components/Food.vue';
 import SingleFood from './components/SingleFood.vue';
 import Programmazione from './components/Programmazione.vue';
 import Checkout from './components/Checkout.vue';
+import Success from './components/Success.vue';
 
 const app = createApp({})
 
@@ -26,6 +27,7 @@ app.component('cmp-food', Food)
 app.component('cmp-singlefood', SingleFood)
 app.component('cmp-film', Programmazione)
 app.component('cmp-checkout', Checkout)
+app.component('cmp-success', Success)
 
 app.mount('#app')
 

@@ -338,16 +338,6 @@
 					<div class="inner">
 						<h4>{{ $t('Metodi di pagamento') }}</h4>
 
-						<!-- <div v-if="userobj !== null">
-							<button>{{ $t('Aggiungi carta') }}</button>
-						</div> -->
-
-						<!-- <stripe-element-card
-							ref="elementRef"
-							:pk="stripeKey"
-							@token="tokenCreated"
-						/>
-						<button @click="addCard">Generate token</button> -->
 
 						<!-- Display a Stripe payment form -->
 						<form id="payment-form">
@@ -1654,7 +1644,7 @@
 				loadingFalse = this.setLoading(false),
 				username = `${this.user.user_firstname} ${this.user.user_lastname}`,
 				params = {
-					sessionID: this.sessionCart,
+					sessionID: this.sessionCart.sessionCartID,
 					idCinema: this.idCinema,
 					cart: encodeURIComponent(JSON.stringify(this.carrello)),
 					orderType: 'tickets',
