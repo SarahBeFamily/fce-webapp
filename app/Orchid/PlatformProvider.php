@@ -23,8 +23,6 @@ class PlatformProvider extends OrchidServiceProvider
     public function boot(Dashboard $dashboard): void
     {
         parent::boot($dashboard);
-
-        // ...
     }
 
     /**
@@ -34,6 +32,10 @@ class PlatformProvider extends OrchidServiceProvider
      */
     public function menu(): array
     {
+        // Retrieve the orders from the database
+        $orders = Orders::all();
+        $number_of_orders = count($orders);
+
         return [
             Menu::make('Bacheca')
                 ->icon('bs.book')
@@ -43,7 +45,7 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make('Ordini')
                 ->icon('bs.card-list')
                 ->route('platform.orders.ordini')
-                ->badge(fn () => 6),
+                ->badge(fn () => $number_of_orders, Color::INFO),
 
             Menu::make('Statistiche')
                 ->icon('bs.bar-chart')

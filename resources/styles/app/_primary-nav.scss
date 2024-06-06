@@ -1,3 +1,5 @@
+@use './mixins' as *;
+
 .nav-wrapper {
 	position: fixed;
 	bottom: 0;

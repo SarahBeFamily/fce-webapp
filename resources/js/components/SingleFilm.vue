@@ -81,7 +81,7 @@
 									<path d="M2 10H18" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 								</svg>
 							</button>
-							<input type="number" :name="'qty-'+tar.id" :data-prezzo="tar.prezzo" :data-nome="tar.nome" :id="'qty-'+tar.id" min="0" :value="tar.qty">
+							<input type="number" :name="'qty-'+tar.id" :data-prezzo="tar.prezzo" :data-nome="tar.nome" :data-tipoBiglietto="tar.tipo" :data-settore="tar.settore" :id="'qty-'+tar.id" min="0" :value="tar.qty">
 							<button @click.prevent="qtyPlus(tar.id)">
 								<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M2 10H18M10 18V2" stroke="white" stroke-opacity="0.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -374,16 +374,16 @@
 	// import { StripeCheckout } from '@vue-stripe/vue-stripe';
 
 	export default {
-		props: ['route', 'cinema', 'path', 'user', 'client_secret', 'intent_id'],
+		props: ['route', 'cinema', 'path', 'userp', 'client_secret', 'intent_idp'],
 		components: {Stripe},
     data() {
         return {
 			appUrl: this.path,
 			id: this.route,
-			user: this.user,
+			user: this.userp,
 			userobj: null,
 			clientSecret: this.client_secret,
-			intent_id: this.intent_id,
+			intent_id: this.intent_idp,
 			stripeKey: import.meta.env.VITE_STRIPE_KEY,
 			stripeSecretKey: import.meta.env.VITE_STRIPE_SECRET,
 			WebtikBase: import.meta.env.VITE_WEBTIK_SERVICE_BASE,
@@ -428,7 +428,8 @@
 				totale: 0,
 				index: 0,
 				isChecked: false,
-			},
+			},						// console.log(this.postiSala);
+
 			activeSubmit: false,
 			activeSubmitPrivate: false,
 			Sala: {
@@ -439,6 +440,8 @@
 			postiSala: [],
 			postiOccupati: [],
 			postiScelti: [],
+			postiBloccati: false,
+			postiBloccatiArray: [],
 			postiChecked: {
 				posti: [],
 				checked: true,
@@ -643,16 +646,10 @@
 						details = jsonData.priceList.prices.price,
 						tariffe_array = [];
 
+						console.log(details);
+
 					for (let i = 0; i < details.length; i++) {
 						const prezzo = details[i];
-
-						// let cookieqty = 0;
-						// for (let i = 0; i < this.checkedBiglietto.biglietti.length; i++) {
-						// 	const biglietto = this.checkedBiglietto.biglietti[i];
-						// 	if (biglietto.id == prezzo.idbiglietto && this.spettacolo == this.id) {
-						// 		cookieqty = biglietto.qty;
-						// 	}
-						// }
 
 						let cookieqty = 0;
 						this.checkedBiglietto.carrello.map((el_cart) => {
@@ -664,9 +661,11 @@
 						tariffe_array.push({
 							id: prezzo.idbiglietto,
 							tariffa: idTariffa,
+							tipo: prezzo.idtipobigl,
 							nome: (prezzo.descr_biglietto).toLowerCase(),
 							prezzo: prezzo.prezzo,
 							supplemento: prezzo.supplemento,
+							settore: prezzo.settore,
 							qty: cookieqty,
 						})
 					}
@@ -775,33 +774,6 @@
         },
 		tabChange: function(data) {
 			if (data == 'checkout') {
-				// let test = [{
-				// 	id: 'intero-1',
-				// 	tariffa: '1',
-				// 	prodotto: 'Intero Posto 1/A',
-				// 	prezzo: '8,00',
-				// 	qty: 1,
-				// 	type: 'biglietto',
-				// 	show: this.dettagli.titolo,
-				// 	cinema: this.idCinema,
-				// 	date: `${this.checkedGiorno} ${this.checkedOrario.ora}`,
-				// 	hall: this.checkedOrario.sala,
-				// 	currency: 'eur',
-				// },
-				// {
-				// 	id: 'intero-2',
-				// 	tariffa: '1',
-				// 	prodotto: 'Intero Posto 1/B',
-				// 	prezzo: '8,00',
-				// 	qty: 1,
-				// 	type: 'biglietto',
-				// 	show: this.dettagli.titolo,
-				// 	cinema: this.idCinema,
-				// 	date: `${this.checkedGiorno} ${this.checkedOrario.ora}`,
-				// 	hall: this.checkedOrario.sala,
-				// 	currency: 'eur',
-				// }];
-				// this.addToCart(sessionID, JSON.stringify(test), data);
 				this.isCheckout = true;
 			} else {
 				this.isCheckout = false;
@@ -1004,12 +976,20 @@
 					let el = {
 						type: 'biglietto',
 						index: this.checkedBiglietto.index,
-						tariffa: id,
+						tariffa: parseInt(id),
+						tipoBiglietto: parseInt(targetInput.attr('data-tipoBiglietto')),
+						settore: targetInput.attr('data-settore'),
 						id: `${targetSlug}-${this.checkedBiglietto.index}`,
 						nome: targetNome,
 						prezzo: parseFloat(targetPrezzo).toFixed(2).replace('.', ','),
 						qty: targetQty / targetQty,
 						posto: '',
+						titolo: this.dettagli.titolo,
+						data: `${this.checkedGiorno} ${this.checkedOrario.ora}`,
+						cat: this.dettagli.genere,
+						sala: this.checkedOrario.sala,
+						idPerf: this.checkedOrario.idPerf,
+						idSala: this.checkedOrario.idsala,
 					};
 
 					this.checkedBiglietto.carrello.push(el)
@@ -1097,6 +1077,17 @@
 		getPostiSala: function($path) {
 			// se il path non è private screening cambio tab alla scelta dei posti
 			if ($path != 'private') {
+
+				// Momentaneo check delle tariffe
+				// axios.get(`${this.WebtikBase}_getPriceListFull?idcinema=${this.idCinema}&idperformance=${this.checkedOrario.idPerf}&idtariffa=${this.checkedOrario.idTariffa}&MODE=0`)
+				// 	.then((res) => {
+				// 		let xmldata = res.data;
+				// 		let XmlNode = new DOMParser().parseFromString(xmldata, 'text/xml');
+				// 		let jsonData = this.xmlToJson(XmlNode);
+
+				// 		console.log(jsonData);
+				// });
+
 				axios.get(`${this.WebtikBase}_getMappaSale?idcinema=${this.idCinema}&idsala=${this.checkedOrario.idsala}`)
 					.then((res) => {
 						let xmldata = res.data;
@@ -1111,6 +1102,7 @@
 							this.postiSala[i].checked = Object.keys(this.sessionCart).length > 0 && this.sessionCart.spettacolo === this.id && this.postiChecked.posti.includes(posto.idposto) ? true : false;
 						}
 
+						// console.log(this.postiSala);
 						this.getPostiOccupati($path);
 				});
 			} else {
@@ -1137,7 +1129,7 @@
 						console.log(postoID)
 
 						if (!this.postiScelti.map((el) => {return el.postoid}).includes(postoID)) {
-							console.log('non cè')
+							console.log('non c\'è')
 
 							this.postiSala.map((postoSala) => {
 								if (postoSala.idposto === postoID) {
@@ -1229,6 +1221,7 @@
 								posto = posto_arr[1];
 
 							if (assegnato === false) {
+								element.postoid = postoID;
 								element.posto = `Fila ${fila} Posto ${posto}`;
 								element.prodotto = `${element.nome} ${element.posto}`;
 								assegnato = true;
@@ -1361,7 +1354,11 @@
 				this.checkedBiglietto.recap = nuovo_recap;
 				this.recap = this.checkedBiglietto.recap.map(function(elem){
 					return elem.string;
-				}).join(' | ');
+				});
+
+				if (this.recap != '') {
+					this.recap = this.recap.join(' | ');
+				}
 
 				if (this.checkedBiglietto.recap.length > 0) {
 					let tot = 0;
@@ -1406,6 +1403,8 @@
 				totString: this.checkedBiglietto.totString,
 				index: this.checkedBiglietto.index,
 				activeSubmit: this.activeSubmit,
+				fiscal_address: this.fiscal_address,
+				fiscal_port: this.fiscal_port,
 			}
 
 			let sessionCartStr = JSON.stringify(sessionCart);
@@ -1421,25 +1420,6 @@
 				location.href = `${this.appUrl}login`;
 			}
 		},
-		// addToCart(id, items, data) {
-		// 	axios.get('addToCart', {params: {id, items}})
-		// 		.then((res) => {
-		// 			let result = res.data;
-
-		// 			if (result !== '' && data === 'checkout') {
-		// 				$(`.tab .cont#${data}`).removeClass('hidden');
-		// 				$(`.tab .cont:not(#${data})`).addClass('hidden');
-
-		// 				this.isCheckout = true;
-		// 				this.activeTab.dataTab = data;
-		// 			}
-
-		// 		console.log(result);
-		// 		console.log(this.cart);
-		// 	}).catch((err) => {
-		// 		console.log(err);
-		// 	});
-		// },
 		addToCart: function(id, items, data) {
 			axios.get('addToCart',
 			{
@@ -1521,34 +1501,26 @@
 					}
 			});
 		},
-		checkout: function() {
-			let tipoBiglietti_array = [],
-				tariffa = '',
-				qty = 0;
+		sbloccaPosti: function() {
+			let posti = this.postiScelti.map((el) => {return el.postoid}).join('&aiProgPosti=');
+			
+			// Sblocca i posti in caso di errori
+			axios.get(`${this.WebtikBase}setSbloccoPosti?idcinema=${this.idCinema}&idperformance=${this.checkedOrario.idPerf}&sSessionId=${this.sessionID}&aiProgPosti=${posti}`)
+				.then((res) => {
+				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
+					jsonData = this.xmlToJson(XmlNode);
 
-			// divido le tipologie di biglietto richieste
-			this.carrello.map((item) => {
-				if (item.type === 'biglietto') {
-					tariffa = item.tariffa;
-
-					if (tariffa === item.tariffa)
-						qty += item.qty;
+				console.log('posti sbloccati');
+				if (jsonData.short != 0) {
+					alert('Errore nello sblocco dei posti');
 				}
-				if (item.type === 'biglietto' && tipoBiglietti_array.findIndex(function(o){ return o.id === item.tariffa }) === -1)
-					tipoBiglietti_array.push({id: item.tariffa, qty: qty});
 			});
+		},
+		checkout: function() {
+			let posti = this.postiScelti.map((el) => {return el.postoid}).join('&aiProgPosti=');
 
-			let posti = this.postiScelti.join(';');
-			let items = [];
-			this.carrello.map((item) => {
-				let nome = item.type === 'biglietto' ? `${item.nome} ${item.posto}` : item.nome;
-				items.push(`eur // ${(item.prezzo).replace(',', '')} // ${nome} // ${item.qty} // ${this.spettacolo}`)
-			});
-
-			this.lineItems = items;
-			console.log(this.lineItems);
-			// this.getSession(this.lineItems);
-
+			console.log(posti);
+			
 			// Blocca i posti prima della transazione
 			axios.get(`${this.WebtikBase}setBloccoPosti?idcinema=${this.idCinema}&idperformance=${this.checkedOrario.idPerf}&sSessionId=${this.sessionID}&aiProgPosti=${posti}`)
 				.then((res) => {
@@ -1556,10 +1528,10 @@
 					jsonData = this.xmlToJson(XmlNode);
 
 				console.log(jsonData);
-				if (jsonData.short < 0) {
+				if (jsonData.short == 0) {
 					this.activeSubmitCheckout = false;
 					this.activeSubmit = false;
-
+				
 					// Check del server fiscale
 					axios.get(`${this.WebtikBase}_checkFiscalServer?fiscal_address=${this.fiscal_address}&fiscal_port=${this.fiscal_port}`)
 						.then((res) => {
@@ -1572,28 +1544,42 @@
 							this.payment();
 						} else {
 							// Sblocco i posti
-							axios.get(`${this.WebtikBase}setSbloccoPosti?idcinema=${this.idCinema}&idperformance=${this.checkedOrario.idPerf}&sSessionId=${this.sessionID}&aiProgPosti=${posti}`)
-								.then((res) => {
-								const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
-									jsonData = this.xmlToJson(XmlNode);
-
-								console.log(jsonData);
-							});
+							this.sbloccaPosti();
 							alert('Server fiscale non pronto');
 						}
 					});
 				} else {
-					alert('Errore');
-					// Sblocco i posti
-					axios.get(`${this.WebtikBase}setSbloccoPosti?idcinema=${this.idCinema}&idperformance=${this.checkedOrario.idPerf}&sSessionId=${this.sessionID}&aiProgPosti=${posti}`)
-						.then((res) => {
-						const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
-							jsonData = this.xmlToJson(XmlNode);
-
-						console.log(jsonData);
-					});
+					alert('Errore: posti già bloccati');
 				}
 			});
+		},
+		setLineItems() {
+			let tipoBiglietti_array = [],
+				tariffa = '',
+				qty = 0;
+
+			// divido le tipologie di biglietto richieste
+			this.checkedBiglietto.map((item) => {
+				if (item.type === 'biglietto') {
+					tariffa = item.tariffa;
+
+					if (tariffa === item.tariffa)
+						qty += item.qty;
+				}
+				if (item.type === 'biglietto' && tipoBiglietti_array.findIndex(function(o){ return o.id === item.tariffa }) === -1)
+					tipoBiglietti_array.push({id: item.tariffa, qty: qty});
+			});
+
+			let posti = this.postiScelti.join(';');
+			let items = [];
+			this.checkedBiglietto.map((item) => {
+				let nome = item.type === 'biglietto' ? `${item.nome} ${item.posto}` : item.nome;
+				items.push(`eur // ${(item.prezzo).replace(',', '')} // ${nome} // ${item.qty} // ${this.spettacolo}`)
+			});
+
+			this.lineItems = items;
+			console.log(this.lineItems);
+			// this.getSession(this.lineItems);
 		},
 		getSession(items) {
 			axios.get('getSession', {params: {items}})
@@ -1615,7 +1601,7 @@
 			const appearance = { 
 				theme: 'night',
   				labels: 'floating',
-				  variables: {
+				variables: {
 					colorPrimary: '#0570de',
 					colorDanger: '#df1b41',
 					spacingUnit: '2px',
@@ -1642,13 +1628,13 @@
 			let formPayment = $('#payment-form'),
 				loadingTrue = this.setLoading(true),
 				loadingFalse = this.setLoading(false),
-				username = `${this.user.user_firstname} ${this.user.user_lastname}`,
 				params = {
 					sessionID: this.sessionCart.sessionCartID,
+					performance: this.checkedOrario.idPerf,
 					idCinema: this.idCinema,
 					cart: encodeURIComponent(JSON.stringify(this.carrello)),
 					orderType: 'tickets',
-					items: this.lineItems,
+					film: this.id,
 					total: parseFloat(this.checkedBiglietto.totale),
 				};
 
@@ -1662,6 +1648,7 @@
 					loadingFalse;
 					// console.log(response);
 					let success = response.data.request.return_url;
+					this.orderID = response.data.request.metadata.order_id;
 					alert(response.data.message);
 					console.log(success);
 
@@ -1669,7 +1656,7 @@
 					axios.get('/updatePaymentIntent', {
 						params: {
 							payment_intent: intentID,
-							order_id: response.data.request.metadata.order_id,
+							order_id: this.orderID,
 							cinema: this.idCinema,
 							customer: this.userobj.stripe_id,
 							items: this.recap,
@@ -1690,6 +1677,7 @@
 							if (result.error) {
 								// Inform the customer that there was an error.
 								console.log(result.error.message);
+								this.sbloccaPosti();
 							} else {
 								// The PaymentIntent was successful. Proceed to the success page.
 								window.location.href = success;
@@ -1697,15 +1685,15 @@
 						});
 					}).catch(error => {
 						console.log(error);
+						loadingFalse;
+						this.sbloccaPosti();
 					});
-					
-					// submit the form
-					// e.currentTarget.submit();
 
 				}).catch(error => {
 					// throw error
 					console.log(error);
 					loadingFalse;
+					this.sbloccaPosti();
 				});
 			});
 		},

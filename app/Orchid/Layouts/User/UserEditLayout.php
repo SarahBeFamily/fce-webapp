@@ -18,13 +18,6 @@ class UserEditLayout extends Rows
     public function fields(): array
     {
         return [
-            Input::make('user.name')
-                ->type('text')
-                ->max(255)
-                ->required()
-                ->title(__('Username'))
-                ->placeholder(__('Username')),
-
             Input::make('user.email')
                 ->type('email')
                 ->required()

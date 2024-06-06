@@ -1,8 +1,10 @@
+@use '../mixins' as *;
+
 main#login {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	height: 97vh;
+	height: 85vh;
 
 	.intro {
 		&[phase="start"] {

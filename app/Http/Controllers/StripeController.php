@@ -8,40 +8,40 @@ use Illuminate\Support\Facades\Route;
 
 class StripeController extends Controller
 {
-    public function getSession(Request $items, $success_url) {
-        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
-        $app_url_base = app()->env == 'prod' ? env('APP_URL') : env('APP_DEV');
-        $request_to_array = (array) $items->items;
-        $items_array_raw = explode(',', $request_to_array[0]);
-        $items_array = [];
-        $result = [];
+    // public function getSession(Request $items, $success_url) {
+    //     $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
+    //     $app_url_base = app()->env == 'prod' ? env('APP_URL') : env('APP_DEV');
+    //     $request_to_array = (array) $items->items;
+    //     $items_array_raw = explode(',', $request_to_array[0]);
+    //     $items_array = [];
+    //     $result = [];
 
-        // Accorpo i dati in un array associativo
-        foreach ($items_array_raw as $key => $value) {
-            $items_array[] = explode(' // ', $value);
-        }
+    //     // Accorpo i dati in un array associativo
+    //     foreach ($items_array_raw as $key => $value) {
+    //         $items_array[] = explode(' // ', $value);
+    //     }
 
-        foreach ($items_array as $item) {
-            $result[] = [
-                'price_data' => [
-                    'currency' => $item[0],
-                    'unit_amount' => (int) $item[1],
-                    'product_data' => [
-                        'name' => $item[2],
-                    ],
-                ],
-                'quantity' => (int) $item[3],
-            ];
-        }
+    //     foreach ($items_array as $item) {
+    //         $result[] = [
+    //             'price_data' => [
+    //                 'currency' => $item[0],
+    //                 'unit_amount' => (int) $item[1],
+    //                 'product_data' => [
+    //                     'name' => $item[2],
+    //                 ],
+    //             ],
+    //             'quantity' => (int) $item[3],
+    //         ];
+    //     }
 
-        $checkout = $stripe->checkout->sessions->create([
-            'success_url' => $success_url,
-            'line_items' => $result,
-            'mode' => 'payment',
-        ]);
+    //     $checkout = $stripe->checkout->sessions->create([
+    //         'success_url' => $success_url,
+    //         'line_items' => $result,
+    //         'mode' => 'payment',
+    //     ]);
 
-        return $checkout;
-    }
+    //     return $checkout;
+    // }
 
     /**
      * Get Stripe Customer from Stripe
@@ -65,28 +65,28 @@ class StripeController extends Controller
     /**
      * Pay with Stripe PaymentIntent
      */
-    public function handlePayment(Request $request)
-    {
-        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
-        $stripe_customer = $request->user()->createOrGetStripeCustomer();
-        $payment_method = $request->payment_method;
+    // public function handlePayment(Request $request)
+    // {
+    //     $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
+    //     $stripe_customer = $request->user()->createOrGetStripeCustomer();
+    //     $payment_method = $request->payment_method;
 
-        try {
-            $payment_intent = $stripe->paymentIntents->create([
-                'amount' => $request->amount,
-                'currency' => 'eur',
-                'customer' => $stripe_customer->id,
-                'payment_method' => $payment_method,
-                'off_session' => true,
-                'confirm' => true,
-            ]);
+    //     try {
+    //         $payment_intent = $stripe->paymentIntents->create([
+    //             'amount' => $request->amount,
+    //             'currency' => 'eur',
+    //             'customer' => $stripe_customer->id,
+    //             'payment_method' => $payment_method,
+    //             'off_session' => true,
+    //             'confirm' => true,
+    //         ]);
 
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
-        }
+    //     } catch (\Exception $e) {
+    //         return back()->with('error', $e->getMessage());
+    //     }
 
-        return back()->with('success', 'Pagamento effettuato con successo!');
-    }
+    //     return back()->with('success', 'Pagamento effettuato con successo!');
+    // }
 
     /**
      * Creo l'ordine provvisorio
@@ -96,7 +96,6 @@ class StripeController extends Controller
         $cartArr = (array) $request->cart;
         $app_url_base = app()->env == 'prod' ? env('APP_URL') : env('APP_DEV');
         $message = '';
-        // $decodedCart = json_decode($request->cart, true);
 
         // Controllo se esiste già un ordine con lo stesso carrello
         $order = Orders::where('cart_id', $request->sessionID)->first();
@@ -104,7 +103,7 @@ class StripeController extends Controller
         // Se l'ordine esiste già lo aggiorno
         if ($order) {
             $order->update([
-                'order_data_list' => json_encode($cartArr),
+                'order_data_list' => count($cartArr) > 0 ? json_encode($cartArr) : '',
                 'order_amount' => floatval(number_format($request->total, 2, ',', '.')),
             ]);
 
@@ -115,8 +114,9 @@ class StripeController extends Controller
                 'user_id' => $request->user()->id,
                 'cart_id' => $request->sessionID,
                 'order_type' => $request->orderType, // 'ticket' o 'food'
-                'order_data_list' => json_encode($cartArr),
+                'order_data_list' => count($cartArr) > 0 ? json_encode($cartArr) : '',
                 'order_ref_cinema' => $request->idCinema,
+                'performance_id' => $request->performance,
                 'order_amount' => floatval(number_format($request->total, 2, ',', '.')),
                 'order_status' => 'pending',
                 'order_transaction' => '',
@@ -126,35 +126,11 @@ class StripeController extends Controller
             $message = 'Ordine creato con successo!';
         }
 
-        // Preparo i prodotti per Stripe
-        $request_to_array = (array) $request->items;
-        $items_array_raw = explode(',', $request_to_array[0]);
-        $items_array = [];
-        $result = [];
-
-        // Accorpo i dati in un array associativo
-        foreach ($items_array_raw as $key => $value) {
-            $items_array[] = explode(' // ', $value);
-        }
-
-        foreach ($items_array as $item) {
-            $result[] = [
-                'price_data' => [
-                    'currency' => $item[0],
-                    'unit_amount' => (int) $item[1],
-                    'product_data' => [
-                        'name' => $item[2],
-                    ],
-                ],
-                'quantity' => (int) $item[3],
-            ];
-        }
-
         // preparo i dati da inviare a Stripe
         $data = [
             'request' => [
-                'return_url' => 'http://'.$app_url_base.'/checkout/success?order='.$order->id.'&film='.$items_array[0][4],
-                'metadata' => ['order_id' => $order->id, 'items' => $result],
+                'return_url' => $app_url_base.'/checkout/success?order='.$order->id.'&film='.$request->film.'&performance='.$request->performance.'&sessionId='.$request->sessionID,
+                'metadata' => ['order_id' => $order->id],
             ],
             'message' => $message
         ];
@@ -189,7 +165,7 @@ class StripeController extends Controller
     /**
      * Checkout success page
      */
-    public function checkoutSuccess(Request $request)
+    public function checkoutSuccess(Request $request) 
     {
         $success = $request->redirect_status == 'succeeded' ? true : false;
 
@@ -202,10 +178,13 @@ class StripeController extends Controller
                 'order_transaction' => $request->payment_intent,
             ]);
 
-            $request->session()->forget('sessionCart');
             $data = [
                 'order' => $request->order,
                 'film' => $request->film,
+                'transaction' => $request->payment_intent,
+                'sessionId' => $request->sessionID,
+                'performance' => $request->performance,
+                'items' => $request->cart,
             ];
 
             return view('checkout-success')->with($data);

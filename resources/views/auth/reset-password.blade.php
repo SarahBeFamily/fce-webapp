@@ -1,4 +1,5 @@
 <x-guest-layout>
+    @php($request = request())
     <form method="POST" action="{{ route('password.store') }}">
         @csrf
 

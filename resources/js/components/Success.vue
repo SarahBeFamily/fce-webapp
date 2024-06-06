@@ -29,14 +29,15 @@
 	import.meta.glob(['../../images/**',]);
 
 	export default {
-		props: ['film', 'order'],
+		props: ['film', 'order', 'userp', 'performance', 'sessionID', 'items'],
     data() {
         return {
 			id: this.film,
-			order: this.order,
-			sessionId: null,
+			user: JSON.parse(this.userp),
+			sessionId: this.sessionID,
 			idCinema: null,
 			orderObj: null,
+			itemsObj: null,
 			stripeKey: import.meta.env.VITE_STRIPE_KEY,
 			stripeSecretKey: import.meta.env.VITE_STRIPE_SECRET,
 			WebtikBase: import.meta.env.VITE_WEBTIK_SERVICE_BASE,
@@ -48,13 +49,42 @@
 			fiscal_port: '',
 			browser: '',
 			device: $(window).width() < 768 ? 'mobile' : 'desktop',
+			posti: [],
+			idPerf: this.performance,
+			idSala: '93',
         };
     },
 	methods: {
 		fetchData: function() {
 			this.orderObj = JSON.parse(this.order);
 			this.idCinema = this.orderObj.order_ref_cinema;
+			this.itemsObj = JSON.parse(this.items);
+
 			console.log(this.orderObj);
+			console.log(this.itemsObj);
+
+			// Cambio l'ID della sala
+			if (this.orderObj.idSala) {
+				this.idSala = this.orderObj.idSala;
+			}
+
+			// Creo la classe di posti con le tariffe
+			if (this.itemsObj !== null && this.itemsObj.length > 0) {
+				this.itemsObj.map((item) => {
+					if (item.type === 'biglietto')
+					this.posti.push({
+						codicePosto: (item.postoid).replace('%2F', '/'),
+						idBiglietto: item.tariffa,
+						tipoBiglietto: item.tipoBiglietto,
+						settore: item.settore,
+						idPerformance: this.idPerf,
+						idSala: this.idSala,
+						pagaCliente: true,
+					});
+				});
+			}
+
+			console.log(this.idPerf);
 
 			this.fetchEvento();
 		},
@@ -64,7 +94,6 @@
 				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
 					jsonData = this.xmlToJson(XmlNode),
 					evento = jsonData.PerformanceListDetail.evento,
-					performances = jsonData.PerformanceListDetail.performances.performance,
 					durata = evento.durata,
 					genere = evento.genere;
 
@@ -101,6 +130,7 @@
 					fiscal_address = jsonData.FiscalAddress.fiscal_address,
 					fiscal_port = jsonData.FiscalAddress.fiscal_port;
 
+					console.log(jsonData);
 					if (fiscal_address !== 'x' && fiscal_port !== 'x') {
 						this.fiscal_address = fiscal_address;
 						this.fiscal_port = fiscal_port;
@@ -109,6 +139,128 @@
 						this.fiscal_address = '212.161.77.100';
 						this.fiscal_port = '5001';
 					}
+			});
+		},
+		getTickets: function() {
+			// Check del server fiscale
+			axios.get(`${this.WebtikBase}_checkFiscalServer?fiscal_address=${this.fiscal_address}&fiscal_port=${this.fiscal_port}`)
+				.then((res) => {
+				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
+					jsonData = this.xmlToJson(XmlNode);
+
+				console.log(jsonData);
+				if (jsonData.int === '666') {
+					// posso procedere con la fiscalizzazione
+					this.fiscalizzaBiglietti();
+				} else {
+					alert('Server fiscale non pronto');
+				}
+			});
+		},
+		fiscalizzaBiglietti: function() {
+			// Cancello la sessione
+			localStorage.clear();
+
+			let transcod = this.orderObj.order_transaction,
+				datiCall = {
+					idcinema: this.idCinema,
+					idPerformance: this.idPerf,
+					sSessionId: this.orderObj.cart_id,
+					iCodSistema: '100',					// FISSO
+					idTrans: transcod,						// DAMMI UN QUALSIASI NUMERO
+					idOrdine: this.orderObj.id,			// ORDINE IDENTIFICATIVO DELLA TRANSAZIONE BANCARIA
+					sCodCC: transcod,					// HASH CARTA DI CREDITO (OPPURE PAYPAL_NUMERO_OPERAZIONE)
+					sNominativo: this.user.name,		// NOME CLIENTE 
+					sEmail: this.user.email,			// EMAIL CLIENTE
+					listaPosti: this.posti,				// CLASSE POSTI
+					fiscal_mode: '1',					// FISSO
+					fiscal_address: this.fiscal_address,// LO AVEVI PRESI PRIMA
+					fiscal_port: this.fiscal_port,		// LO AVEVI PRESI PRIMA
+					session_enabled: '0',				// FISSO
+					transaction_enabled: '1',			// FISSO
+					web_box: 'BOX_ZERO',				// FISSO
+					web_operator: 'USER_ZERO',			// FISSO
+					trackid: '500',						// track provvisorio
+				};
+
+			console.log(datiCall);
+
+			let cPosti = this.posti.map((posto) => {
+				return `<cPosto>
+						<codicePosto>${posto.codicePosto}</codicePosto>
+						<idBiglietto>${posto.idBiglietto}</idBiglietto>
+						<tipoBiglietto>${posto.tipoBiglietto}</tipoBiglietto>
+						<settore>${posto.settore}</settore>
+						<idPerformance>${posto.idPerformance}</idPerformance>
+						<idSala>${posto.idSala}</idSala>
+						<pagaCliente>${posto.pagaCliente}</pagaCliente>
+					</cPosto>`;
+			}).join('');
+
+			// Define SOAP endpoint and request payload
+			const soapEndpoint = `${this.WebtikBase}_setAcquistoPostiTrackId`;
+			const proxyurl = "https://cors-anywhere.herokuapp.com/";
+			const url = 'https://services.webtic.it/services/WSC_Webtic.asmx'; // your SOAP service url
+			const headers = {
+				'Content-Type': 'text/xml; charset=utf-8', // SOAP request headers
+				'SOAPAction': 'http://services.webtic.it/setAcquistoPostiTrackId', // Define SOAP action
+			};
+			const soapRequest = `<?xml version="1.0" encoding="utf-8"?>
+				<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+            		<soap:Body>
+						<setAcquistoPostiTrackId xmlns="https://services.webtic.it/">
+							<idcinema>${this.idCinema}</idcinema>
+							<idPerformance>${this.performance}</idPerformance>
+							<sSessionId>${this.orderObj.cart_id}</sSessionId>
+							<iCodSistema>100</iCodSistema>
+							<idTrans>${transcod}</idTrans>
+							<idOrdine>${this.orderObj.id}</idOrdine>
+							<sCodCC>${transcod}</sCodCC>
+							<sNominativo>${this.user.user_firstname} ${this.user.user_lastname}</sNominativo>
+							<sEmail>${this.user.email}</sEmail>
+							<listaPosti>${cPosti}</listaPosti>
+							<fiscal_mode>1</fiscal_mode>
+							<fiscal_address>${this.fiscal_address}</fiscal_address>
+							<fiscal_port>${this.fiscal_port}</fiscal_port>
+							<session_enabled>0</session_enabled>
+							<transaction_enabled>1</transaction_enabled>
+							<web_box>BOX_ZERO</web_box>
+							<web_operator>USER_ZERO</web_operator>
+							<trackid>500</trackid>
+						</setAcquistoPostiTrackId>
+					</soap:Body>
+				</soap:Envelope>`;
+
+				console.log(soapRequest);
+
+			// Invio l'xml per la fiscalizzazione dei biglietti
+			axios.post(proxyurl + url, soapRequest, { headers: headers })
+			.then((res) => {
+				console.log('SOAP Response:', res.data);
+				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
+					jsonData = this.xmlToJson(XmlNode);
+
+				console.log(jsonData);
+
+				const result = jsonData['soap:Envelope']['soap:Body']['setAcquistoPostiTrackIdResponse']['setAcquistoPostiTrackIdResult'];
+				console.log(result);
+			})
+		},
+		printTickets: function() {
+			// Cancello la sessione
+			localStorage.clear();
+			
+			// Tariffa provvisoria
+			// To Do: tariffa reale
+			let tariffa = '288';
+			axios.get(`${this.WebtikBase}_getTicket?idcinema=${this.idCinema}&idordine=${this.orderObj.order_id}&tariffa=${tariffa}`)
+				.then((res) => {
+				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
+					jsonData = this.xmlToJson(XmlNode),
+					ticket = jsonData.Ticket.ticket,
+					ticketData = this.propertiesToArray(ticket);
+
+				console.log(ticketData);
 			});
 		},
 		xmlToJson: function(xml) {

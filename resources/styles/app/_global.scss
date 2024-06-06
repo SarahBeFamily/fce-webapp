@@ -1,3 +1,5 @@
+@use './mixins' as *;
+
 :root {
 	--main-font: 'Montserrat', sans-serif;
 	--nav-font: 'Cabin', sans-serif;

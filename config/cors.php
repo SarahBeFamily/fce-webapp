@@ -19,11 +19,11 @@ return [
 
     'allowed_methods' => ['POST', 'GET', 'DELETE', 'PUT', '*'],
 
-    'allowed_origins' => ['fce.test', 'fce.befamily.it', '192.168.178.225', '192.168.178.225:5174', '192.168.1.140', '192.168.1.140:5174', '127.0.0.1:8000', 'localhost:5173'],
+    'allowed_origins' => ['fce.test', 'fce.befamily.it', '192.168.178.225', '192.168.178.225:5174', '192.168.178.26', '192.168.178.26:5174', '192.168.178.26:5173', '192.168.1.140', '192.168.1.140:5174', '127.0.0.1:8000', 'localhost:5173'],
 
-    'allowed_origins_patterns' => ['https://services.webtic.it', 'http://fce.winticstellar.com'],
+    'allowed_origins_patterns' => ['https://services.webtic.it', 'https://fce.winticstellar.com'],
 
-    'allowed_headers' => ['X-Custom-Header', 'Upgrade-Insecure-Requests','Content-Type', 'accept', 'x-custom-header', 'x-requested-with'],
+    'allowed_headers' => ['*'],
 
     'exposed_headers' => false,
 

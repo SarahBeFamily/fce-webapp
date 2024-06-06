@@ -25,7 +25,9 @@ class OrdersScreen extends Screen
     {
         return [
             'order'  => Orders::find(1),
-            'orders' => Orders::paginate(),
+            'orders' => Orders::where('order_status', '!=', 'deleted')
+                ->orderBy('created_at', 'desc')
+                ->paginate(),
         ];
     }
 
@@ -54,7 +56,11 @@ class OrdersScreen extends Screen
      */
     public function commandBar(): iterable
     {
-        return [];
+        return [
+            Link::make(__('Nuovo Ordine'))
+                ->icon('bs.plus-circle')
+                ->href(route('platform.systems.orders.create')),
+        ];
     }
 
     /**
@@ -81,10 +87,12 @@ class OrdersScreen extends Screen
                 ->render(fn (Orders $order) => DropDown::make()
                     ->icon('bs.three-dots-vertical')
                     ->list([
-
                         Link::make(__('Dettagli'))
                             ->route('platform.orders.ordine', $order->id)
                             ->icon('bs.eye'),
+                        Link::make(__('Modifica'))
+                            ->route('platform.systems.orders.edit', $order->id)
+                            ->icon('bs.pencil'),
 
                     ])),
             ]),

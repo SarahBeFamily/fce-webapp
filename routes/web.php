@@ -105,7 +105,7 @@ Route::get('/getStripeCustomer', [StripeController::class, 'getStripeCustomer'])
 Route::get('/updatePaymentIntent', [StripeController::class, 'updatePaymentIntent'])->name('updatePaymentIntent');
 Route::get('/createOrder', [StripeController::class, 'createOrder'])->name('createOrder');
 
-Route::get('/checkout/success', [StripeController::class, 'checkoutSuccess'])->name('checkout-success');
+Route::get('/checkout/success', ['middleware' => 'cors', StripeController::class, 'checkoutSuccess'])->name('checkout-success');
 
 
 require __DIR__.'/auth.php';

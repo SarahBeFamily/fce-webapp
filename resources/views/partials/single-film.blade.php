@@ -13,9 +13,9 @@
 		route="{{ request()->route('id') }}" 
 		cinema="{{ $idCinema }}"
 		path="{{ asset('/')}}"
-		user="{{ json_encode($user) }}"
+		userp="{{ json_encode($user) }}"
 		client_secret="{{ $intent }}"
-		intent_id="{{ $intent_id }}"
+		intent_idp="{{ $intent_id }}"
 		{{-- carrello="{{ json_encode($orders->getCart()) }}" --}}
 	></cmp-singlefilm>
 

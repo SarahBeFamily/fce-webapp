@@ -21,7 +21,9 @@ use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
 
 use App\Orchid\Screens\Orders\OrdersScreen;
+use App\Orchid\Screens\Orders\OrdersEditScreen;
 use App\Orchid\Screens\Orders\OrderSingleScreen;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -50,7 +52,7 @@ Route::screen('users/{user}/edit', UserEditScreen::class)
     ->name('platform.systems.users.edit')
     ->breadcrumbs(fn (Trail $trail, $user) => $trail
         ->parent('platform.systems.users')
-        ->push($user->name, route('platform.systems.users.edit', $user)));
+        ->push($user->email, route('platform.systems.users.edit', $user)));
 
 // Platform > System > Users > Create
 Route::screen('users/create', UserEditScreen::class)
@@ -88,18 +90,32 @@ Route::screen('roles', RoleListScreen::class)
         ->push(__('Roles'), route('platform.systems.roles')));
 
 // Platform > Ordini
-Route::screen('orders/ordini', OrdersScreen::class)
+Route::screen('orders', OrdersScreen::class)
     ->name('platform.orders.ordini')
     ->breadcrumbs(fn (Trail $trail) => $trail
         ->parent('platform.index')
         ->push('Lista Ordini'));
 
 // Platform > Ordini > Ordine
-Route::screen('orders/ordine/{order_id}', OrderSingleScreen::class)
+Route::screen('orders/{order_id}', OrderSingleScreen::class)
     ->name('platform.orders.ordine')
     ->breadcrumbs(fn (Trail $trail, $order) => $trail
         ->parent('platform.orders.ordini')
         ->push('Ordine #'.$order, route('platform.orders.ordine', $order)));
+
+// Platform > Ordini > Modifica Ordine
+Route::screen('orders/{order_id}/edit', OrdersEditScreen::class)
+    ->name('platform.systems.orders.edit')
+    ->breadcrumbs(fn (Trail $trail, $order) => $trail
+        ->parent('platform.orders.ordini', $order)
+        ->push('Modifica Ordine'));
+
+// Platform > Ordini > Crea Ordine
+Route::screen('orders/create', OrdersEditScreen::class)
+    ->name('platform.systems.orders.create')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.orders.ordini')
+        ->push('Crea Ordine'));
 
 // Example...
 Route::screen('example', ExampleScreen::class)

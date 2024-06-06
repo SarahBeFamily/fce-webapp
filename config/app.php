@@ -70,7 +70,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Europe/Rome',
 
     /*
     |--------------------------------------------------------------------------
@@ -182,6 +182,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
+        'Helper' => App\Helper\Helper::class
     ])->toArray(),
 
     'webtik_service_base' => env('WEBTIK_SERVICE_BASE', 'https://services.webtic.it/services/WSC_Webtic.asmx/'),

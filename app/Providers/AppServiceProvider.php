@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         // Inizializzo la sessione carrello
-        session()->put('cart', []);
+        session()->put('sessionCart', []);
     }
 
     public function getIdCinema($idCinema)

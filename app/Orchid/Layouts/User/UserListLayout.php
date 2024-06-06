@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Orchid\Layouts\User;
 
 use Orchid\Platform\Models\User;
+use App\Models\Orders;
+use App\View\Components\UserOrder;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
@@ -46,8 +48,9 @@ class UserListLayout extends Table
                         'user' => $user->id,
                     ])),
 
+            // Calcolo ordini assegnati all'utente
             TD::make(__('N° Ordini'))
-                
+                ->render(fn (User $user) => Orders::where('user_id', $user->id)->count())
                 ->align(TD::ALIGN_RIGHT)
                 ->sort(),
 

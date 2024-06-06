@@ -12,7 +12,7 @@ $(function() {
 	$('#loginAccedi').on('click', function() {
 		$('#login .intro').attr('phase', 'login');
 		$('#login .start, #login .register, h1[start], h1[register]').addClass('hidden');
-		$('#login .login, h1[login').removeClass('hidden');
+		$('#login .login, h1[login]').removeClass('hidden');
 	});
 
 	$('#loginRegistrati').on('click', function() {
