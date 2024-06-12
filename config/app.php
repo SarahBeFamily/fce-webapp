@@ -55,7 +55,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://fce.test'),
+    'url' => env('APP_URL', 'http://fce.dev'),
 
     'asset_url' => env('ASSET_URL'),
 

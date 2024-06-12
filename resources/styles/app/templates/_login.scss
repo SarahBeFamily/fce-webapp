@@ -2,27 +2,67 @@
 
 main#login {
 	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	height: 85vh;
+	// height: 85vh;
+
+	@include respond-to($max-tablet) {
+		flex-direction: column;
+		justify-content: space-between;
+	}
+
+	@include respond-to($mini-desktop) {
+		flex-direction: column;
+		justify-content: space-between;
+	}
+
+	@include respond-to($min-desktop) {
+		flex-direction: row;
+	}
+
+	.wrapper {
+		@include respond-to($min-desktop) {
+			flex-basis: 50%;
+			padding: 6% 7% 0;
+		}
+	}
 
 	.intro {
-		&[phase="start"] {
-			@include respond-to($max-tablet) {
-				height: 44vh;
-			}
-		}
+		text-align: center;
 
-		&[phase="login"] {
-			@include respond-to($max-tablet) {
+		@include respond-to($max-tablet) {
+			&[phase="register"] {
+				height: 27vh;
+				z-index: -1;
+			}
+
+			&[phase="login"] {
 				height: 30vh;
+				z-index: -1;
+			}
+
+			&[phase="start"] {
+				height: 39vh;
+				z-index: -1;
 			}
 		}
 
-		&[phase="register"] {
-			@include respond-to($max-tablet) {
+		@include respond-to($desktop) {
+			&[phase="register"] {
 				height: 27vh;
 			}
+
+			&[phase="login"] {
+				height: 76vh;
+			}
+
+			&[phase="start"] {
+				height: 76vh;
+				margin: -2em auto -14em;
+				z-index: -1;
+			}
+		}
+
+		@include respond-to($min-desktop) {
+			flex-basis: 50%;
 		}
 
 		img {
@@ -31,33 +71,48 @@ main#login {
 			transition: all .6s ease-in-out;
 
 			&.start:not(.hidden) {
-				@include respond-to($max-tablet) {
-					margin-top: -9%;
-				}
+				margin-top: -16%;
 			}
 
-			&.register:not(.hidden) {
-				@include respond-to($max-tablet) {
+			@include respond-to($max-tablet) {
+				&.register:not(.hidden) {
 					margin-top: -20%;
 				}
-			}
-
-			&.login:not(.hidden) {
-				@include respond-to($max-tablet) {
+	
+				&.login:not(.hidden) {
 					margin-top: -35%;
 				}
+			}
+
+			@include respond-to($tablet) {
+				&.start {
+					height: 76vh;
+					width: auto !important;
+				}
+			}
+
+			@include respond-to($desktop) {
+				width: 28vw;
 			}
 		}
 	}
 
 	.logo {
 		text-align: center;
-		height: 35vh;
+		height: 26vh;
 
 		img {
 			width: 45%;
 			height: auto;
 			margin: 1em 0 2em;
+
+			@include respond-to($tablet-land) {
+				width: 185px;
+			}
+
+			@include respond-to($min-tablet) {
+				width: 185px;
+			}
 		}
 
 		p {
@@ -82,8 +137,12 @@ main#login {
 		text-align: center;
 
 		button {
-			width: 100%;
+			width: 200px;
 			margin-bottom: 10px;
+
+			@include respond-to($phone) {
+				width: 100%;
+			}
 		}
 
 		p {

@@ -1,27 +1,29 @@
 <template>
 	<div class="single-movie">
-		<div class="foto"
-			:class="{small: activeTab.dataTab != 'info' ? 'small' : ''}"
-			:style="{ 'background': 'linear-gradient(180deg, rgba(16, 16, 16, 0.00) 0%, #080808 86.46%), url(' + dettagli.locandina + ')' }">
-			<h1 class="title" v-if="!isCheckout">{{ dettagli.titolo }}</h1>
-		</div>
+		<div class="meta-wrap">
+			<div class="foto"
+				:class="{small: activeTab.dataTab != 'info' ? 'small' : ''}"
+				:style="{ 'background': 'linear-gradient(180deg, rgba(16, 16, 16, 0.00) 0%, #080808 86.46%), url(' + dettagli.locandina + ')' }">
+				<h1 class="title" v-if="!isCheckout">{{ dettagli.titolo }}</h1>
+			</div>
 
-		<div class="meta" v-if="!isCheckout">
-			<div>
-				<span>{{ dettagli.anno }}</span>
-				{{ $t('Anno') }}
-			</div>
-			<div>
-				<span>{{ dettagli.genere }}</span>
-				{{ $t('Genere') }}
-			</div>
-			<div>
-				<span>{{ dettagli.durata }}</span>
-				{{ $t('Durata') }}
-			</div>
-			<div>
-				<span>{{ dettagli.lingua }}</span>
-				{{ $t('Lingua') }}
+			<div class="meta" v-if="!isCheckout">
+				<div>
+					<span>{{ dettagli.anno }}</span>
+					{{ $t('Anno') }}
+				</div>
+				<div>
+					<span>{{ dettagli.genere }}</span>
+					{{ $t('Genere') }}
+				</div>
+				<div>
+					<span>{{ dettagli.durata }}</span>
+					{{ $t('Durata') }}
+				</div>
+				<div>
+					<span>{{ dettagli.lingua }}</span>
+					{{ $t('Lingua') }}
+				</div>
 			</div>
 		</div>
 

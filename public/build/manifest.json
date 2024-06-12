@@ -1,59 +1,148 @@
 {
   "lang/en.json": {
-    "file": "assets/en-521c6e95.js",
+    "file": "js/chunks/en.521c6e95.js",
     "isDynamicEntry": true,
     "src": "lang/en.json"
   },
   "lang/it.json": {
-    "file": "assets/it-a23a5b23.js",
+    "file": "js/chunks/it.c1ed083b.js",
     "isDynamicEntry": true,
     "src": "lang/it.json"
   },
   "lang/php_en.json": {
-    "file": "assets/php_en-71f8ebfa.js",
+    "file": "js/chunks/php_en.71f8ebfa.js",
     "isDynamicEntry": true,
     "src": "lang/php_en.json"
   },
   "resources/images/avatar.jpg": {
-    "file": "assets/avatar-52fc0caf.jpg",
+    "file": "jpg/avatar.52fc0caf.jpg",
     "src": "resources/images/avatar.jpg"
   },
   "resources/images/batman.jpg": {
-    "file": "assets/batman-313b7e33.jpg",
+    "file": "jpg/batman.313b7e33.jpg",
     "src": "resources/images/batman.jpg"
   },
   "resources/images/joker.jpg": {
-    "file": "assets/joker-fb987f4d.jpg",
+    "file": "jpg/joker.fb987f4d.jpg",
     "src": "resources/images/joker.jpg"
   },
   "resources/images/logo.png": {
-    "file": "assets/logo-4ece67a0.png",
+    "file": "png/logo.4ece67a0.png",
     "src": "resources/images/logo.png"
   },
   "resources/images/placeholder-person.jpg": {
-    "file": "assets/placeholder-person-f691e76b.jpg",
+    "file": "jpg/placeholder-person.f691e76b.jpg",
     "src": "resources/images/placeholder-person.jpg"
   },
   "resources/images/schermo.png": {
-    "file": "assets/schermo-8e2da0fb.png",
+    "file": "png/schermo.8e2da0fb.png",
     "src": "resources/images/schermo.png"
+  },
+  "resources/js/admin-panel.js": {
+    "file": "js/admin-panel.4ed993c7.js",
+    "isEntry": true,
+    "src": "resources/js/admin-panel.js"
   },
   "resources/js/app.js": {
     "assets": [
-      "assets/schermo-8e2da0fb.png"
+      "jpg/placeholder-person.f691e76b.jpg",
+      "png/schermo.8e2da0fb.png"
     ],
     "dynamicImports": [
       "lang/en.json",
       "lang/it.json",
       "lang/php_en.json"
     ],
-    "file": "assets/app-622dfd0e.js",
+    "file": "js/app.e1430dec.js",
+    "imports": [
+      "resources/js/bootstrap.js"
+    ],
     "isEntry": true,
     "src": "resources/js/app.js"
   },
+  "resources/js/bootstrap.js": {
+    "file": "js/bootstrap.8fe2ef65.js",
+    "isEntry": true,
+    "src": "resources/js/bootstrap.js"
+  },
+  "resources/styles/admin/admin.scss": {
+    "file": "css/admin.32e1f5bc.css",
+    "isEntry": true,
+    "src": "resources/styles/admin/admin.scss"
+  },
+  "resources/styles/app/_global.scss": {
+    "file": "css/_global.93c3853e.css",
+    "isEntry": true,
+    "src": "resources/styles/app/_global.scss"
+  },
+  "resources/styles/app/_mixins.scss": {
+    "file": "js/_mixins.4ed993c7.js",
+    "isEntry": true,
+    "src": "resources/styles/app/_mixins.scss"
+  },
+  "resources/styles/app/_primary-nav.scss": {
+    "file": "css/_primary-nav.93701475.css",
+    "isEntry": true,
+    "src": "resources/styles/app/_primary-nav.scss"
+  },
+  "resources/styles/app/_slick.scss": {
+    "file": "css/_slick.92885d4d.css",
+    "isEntry": true,
+    "src": "resources/styles/app/_slick.scss"
+  },
+  "resources/styles/app/_typography.scss": {
+    "file": "css/_typography.e333ca11.css",
+    "isEntry": true,
+    "src": "resources/styles/app/_typography.scss"
+  },
   "resources/styles/app/app.scss": {
-    "file": "assets/app-79678ae3.css",
+    "file": "css/app.ca97a788.css",
     "isEntry": true,
     "src": "resources/styles/app/app.scss"
+  },
+  "resources/styles/app/components/_buttons.scss": {
+    "file": "css/_buttons.65edd4ed.css",
+    "isEntry": true,
+    "src": "resources/styles/app/components/_buttons.scss"
+  },
+  "resources/styles/app/forms/_get-id-cinema.scss": {
+    "file": "css/_get-id-cinema.0b707b86.css",
+    "isEntry": true,
+    "src": "resources/styles/app/forms/_get-id-cinema.scss"
+  },
+  "resources/styles/app/forms/_login-register-user.scss": {
+    "file": "css/_login-register-user.168c51d7.css",
+    "isEntry": true,
+    "src": "resources/styles/app/forms/_login-register-user.scss"
+  },
+  "resources/styles/app/templates/_checkout.scss": {
+    "file": "css/_checkout.ff60779d.css",
+    "isEntry": true,
+    "src": "resources/styles/app/templates/_checkout.scss"
+  },
+  "resources/styles/app/templates/_film.scss": {
+    "file": "css/_film.f37086b2.css",
+    "isEntry": true,
+    "src": "resources/styles/app/templates/_film.scss"
+  },
+  "resources/styles/app/templates/_food.scss": {
+    "file": "css/_food.dfb93bf6.css",
+    "isEntry": true,
+    "src": "resources/styles/app/templates/_food.scss"
+  },
+  "resources/styles/app/templates/_login.scss": {
+    "file": "css/_login.c19ef141.css",
+    "isEntry": true,
+    "src": "resources/styles/app/templates/_login.scss"
+  },
+  "resources/styles/app/templates/_profilo.scss": {
+    "file": "css/_profilo.f58f37bd.css",
+    "isEntry": true,
+    "src": "resources/styles/app/templates/_profilo.scss"
+  },
+  "resources/styles/app/templates/_single-film.scss": {
+    "file": "css/_single-film.fd3f0549.css",
+    "isEntry": true,
+    "src": "resources/styles/app/templates/_single-film.scss"
   }
 }

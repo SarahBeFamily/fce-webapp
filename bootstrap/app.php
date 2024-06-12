@@ -41,7 +41,13 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
-$app->register(Mtownsend\ResponseXml\Providers\ResponseXmlServiceProvider::class);
+$app->register(
+    Mtownsend\ResponseXml\Providers\ResponseXmlServiceProvider::class
+);
+
+$app->register(
+    Laravel\Socialite\SocialiteServiceProvider::class
+);
 
 /*
 |--------------------------------------------------------------------------

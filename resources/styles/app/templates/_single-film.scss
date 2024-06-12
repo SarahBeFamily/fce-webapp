@@ -1,6 +1,18 @@
 @use '../mixins' as *;
 
 .single-movie {
+	@include respond-to($min-desktop) {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-around;
+	}
+
+	.meta-wrap {
+		@include respond-to($min-desktop) {
+			flex-basis: 25%;
+		}
+	}
+
 	.foto {
 		height: 185px;
 		background-size: 115% !important;
@@ -12,6 +24,11 @@
 		@include respond-to($min-phone) {
 			height: 330px;
 			background-position: center 15% !important;
+		}
+
+		@include respond-to($min-desktop) {
+			height: 67vh;
+			max-height: 700px;
 		}
 
 		&.small {
@@ -62,6 +79,10 @@
 		--margin: 18px;
 		font-size: 13px;
 		color: var(--int2);
+
+		@include respond-to($min-desktop) {
+			flex-basis: 65%;
+		}
 
 		ul {
 			display: flex;

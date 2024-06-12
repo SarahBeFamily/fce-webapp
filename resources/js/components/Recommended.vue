@@ -17,13 +17,13 @@
 	import $ from 'jquery'
 	import 'slick-carousel'
 
-	// immagine https://services.webtic.it/services/WSC_Webtic.asmx/_getEventImage?idcinema=600&idevento=66
-	// dettagli https://services.webtic.it/services/WSC_Webtic.asmx/_getPerformanceListDetail?idcinema=600&idevento=66
-	
+	let idCinema = localStorage.getItem('idCinema') || 600;
 
   export default {
 	data() {
 	  return {
+		WebtikBase: import.meta.env.VITE_WEBTIK_SERVICE_BASE,
+		idCinema: idCinema,
 		eventiID: [],
 		films: [],
 		sala: [],
@@ -32,7 +32,7 @@
 	methods: {
 		fetchEventiId: function() {
 			let eventi_arr = [];
-			axios.get('https://services.webtic.it/services/WSC_Webtic.asmx/_getEventListDetail?idcinema=600')
+			axios.get(`${this.WebtikBase}_getEventListDetail?idcinema=${this.idCinema}`)
 			.then((res) => {
 				const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
                     jsonData = this.xmlToJson(XmlNode);
@@ -62,7 +62,7 @@
 			for (let i = 0; i < Eventi.length; i++) {
 
 				let id = Eventi[i].id;
-				axios.get(`https://services.webtic.it/services/WSC_Webtic.asmx/_getEventImage?idcinema=600&idevento=${id}`)
+				axios.get(`${this.WebtikBase}_getEventImage?idcinema=${this.idCinema}&idevento=${id}`)
 				.then((res) => {
 					const XmlNode = new DOMParser().parseFromString(res.data, 'text/xml'),
                     	jsonData = this.xmlToJson(XmlNode);

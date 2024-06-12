@@ -9,6 +9,8 @@ use App\Http\Controllers\StripeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CookieAppController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\AuthenticatedSessionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,10 +29,7 @@ Route::get('/getIdCinema', [DashboardController::class, 'getIdCinema'])->name('g
 
 // Route::redirect('/', '/600');
 Route::get('/', function () {
-
     return view('dashboard');
-    
-    // return view('dashboard', [DashboardController::class, 'idCinema']);
 })->name('home');
 
 Route::get('/dashboard', function () {
@@ -53,6 +52,19 @@ Route::middleware('auth')->group(function () {
 Route::get('/profilo', function () {
     return view('profilo', ['intent' => auth()->user()->createSetupIntent()]);
 })->middleware(['auth', 'verified'])->name('profilo');
+
+Route::controller(GoogleController::class)->group(function(){
+    Route::get('auth/google', 'redirectToGoogle')->name('auth.google');
+    Route::get('auth/google/callback', 'handleGoogleCallback');
+
+    // Auth with facebook
+    Route::get('login/facebook', 'redirectToFacebookProvider')->name('login.facebook');
+    Route::get('login/facebook/callback', 'handleFacebookProviderCallback');
+});
+
+Route::get('/cerca', function () {
+    return view('cerca');
+})->name('cerca');
 
 Route::get('/{idCinema}/film', function ($idCinema) {
     return view('film', ['idCinema' => $idCinema]);
@@ -84,6 +96,14 @@ Route::get('/{idCinema}/food/{id}', function ($idCinema, $id) {
 Route::get('/biglietti', function () {
     return view('biglietti');
 })->name('biglietti');
+
+Route::get('/privacy-policy', function () {
+    return view('privacy-policy');
+})->name('privacy-policy');
+
+Route::get('/termini-condizioni', function () {
+    return view('termini-condizioni');
+})->name('termini-condizioni');
 
 Route::get('/checkout', function () {
     if (!Auth::check()) {
