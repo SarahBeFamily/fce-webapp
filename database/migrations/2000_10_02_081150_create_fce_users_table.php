@@ -22,6 +22,14 @@ class CreateFceUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->date('user_birthdate')->nullable();
+            $table->string('user_phone')->nullable();
+            $table->string('user_address')->nullable();
+            $table->string('user_city')->nullable();
+            $table->string('user_zip')->nullable();
+            $table->string('user_province')->nullable();
+            $table->string('user_country')->nullable();
+            $table->string('user_fiscalcode')->nullable();
+            $table->string('favorite_fce')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

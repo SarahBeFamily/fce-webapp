@@ -61,6 +61,17 @@
             @endif
         </div>
 
+        <div class="flex flex-col">
+            <x-input-label for="favorite_fce" :value="__('FCE Preferito')" />
+            <select name="favorite_fce" id="favorite_fce">
+                <option value="">{{ __('Seleziona un FCE') }}</option>
+                @foreach ($cinemas as $id => $fce)
+                    <option value="{{ $id }}" @if ($user->favorite_fce == $id) selected @endif>{{ $fce }}</option>
+                @endforeach
+            </select>
+            <x-input-error class="mt-2" :messages="$errors->get('favorite_fce')" />
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Salva') }}</x-primary-button>
 

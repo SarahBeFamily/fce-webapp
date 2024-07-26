@@ -51,7 +51,7 @@ class GoogleController extends Controller
         // Login the user
         Auth::login($user, true); // Remember the user
 
-        return Redirect::to('/');
+        return Redirect::route('profilo');
     }
 
     /**
@@ -88,6 +88,6 @@ class GoogleController extends Controller
         // Login the user
         Auth::login($user, true); // Remember the user
 
-        return Redirect::to('/');
+        return Redirect::route('profilo');
     }
 }

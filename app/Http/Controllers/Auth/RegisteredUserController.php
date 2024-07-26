@@ -40,7 +40,11 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'user_created_at' => now(),
 
-        ])->assignRole('cliente');
+        ]);
+        // asign role to user if user is created
+        if ($user) {
+            $user->assignRole('cliente');
+        }
 
         event(new Registered($user));
 

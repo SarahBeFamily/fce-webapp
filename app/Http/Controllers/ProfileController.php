@@ -32,6 +32,11 @@ class ProfileController extends Controller
             $request->user()->email_verified_at = null;
         }
 
+        // Save Favorite FCE if it's set.
+        if ($request->filled('favorite_fce')) {
+            $request->user()->favorite_fce = $request->input('favorite_fce');
+        }
+
         $request->user()->save();
 
         return Redirect::route('profilo')->with('status', 'profile-updated');
